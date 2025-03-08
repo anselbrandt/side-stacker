@@ -90,16 +90,19 @@ function App() {
     updateGame(game);
   };
 
-  const hintStyle = (cell: Cell) => {
+  const isOccupied = (cell: Cell) => cell.symbol !== null;
+
+  const cellStyle = (cell: Cell) => {
+    if (isOccupied(cell)) return "bg-white";
     const { i, j } = cell.coordinates;
     if (validMoves && isValid(validMoves, [i, j])) {
-      return "hover:cursor-pointer hover:hover:bg-slate-100";
+      return "bg-white hover:cursor-pointer hover:outline hover:outline-orange-500";
     } else {
-      return "";
+      return "bg-zinc-100";
     }
   };
 
-  const occupiedColor = (symbol: Symbol) => {
+  const symbolColor = (symbol: Symbol) => {
     if (symbol === "X") {
       return "bg-sky-700";
     }
@@ -111,6 +114,19 @@ function App() {
 
   const handleSwitchPlayer = () => {
     setPlayer((prev) => (prev === "X" ? "O" : "X"));
+  };
+
+  const handleRestart = async () => {
+    alert("Are you sure?");
+    const response = await fetch(`${API_URL}/reset`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ id: gameId }),
+    });
+    const game = (await response.json()) as Game;
+    updateGame(game);
   };
 
   return (
@@ -130,13 +146,13 @@ function App() {
             {board?.flat().map((cell, i) => (
               <div
                 key={i}
-                className={`w-11 h-11 bg-white rounded-md drop-shadow-md flex items-center justify-center ${hintStyle(
+                className={`w-11 h-11 rounded-md drop-shadow-md flex items-center justify-center ${cellStyle(
                   cell
                 )}`}
                 onClick={() => handleMove(cell)}
               >
                 <div
-                  className={`w-9 h-9 ${occupiedColor(
+                  className={`w-9 h-9 ${symbolColor(
                     cell.symbol
                   )} rounded-full drop-shadow-lg`}
                 />
@@ -144,18 +160,28 @@ function App() {
             ))}
           </div>
         </div>
-        <div className="m-2 flex flex-row">
-          <button
-            className="m-2 bg-sky-700 text-slate-100 font-mono hover:bg-sky-600 hover:text-white font-bold py-2 px-4 rounded"
-            onClick={handleSwitchPlayer}
-          >
-            Switch Player
-          </button>
-          <div
-            className={`m-2 w-9 h-9 ${occupiedColor(
-              player
-            )} rounded-full drop-shadow-lg`}
-          />
+        <div className="flex flex-col">
+          <div className="flex flex-row">
+            <button
+              className="m-2 bg-sky-700 text-slate-100 font-mono hover:bg-sky-600 hover:text-white font-bold py-2 px-4 rounded"
+              onClick={handleSwitchPlayer}
+            >
+              Switch Player
+            </button>
+            <div
+              className={`m-2 w-9 h-9 ${symbolColor(
+                player
+              )} rounded-full drop-shadow-lg`}
+            />
+          </div>
+          <div>
+            <button
+              className="m-2 bg-sky-700 text-slate-100 font-mono hover:bg-sky-600 hover:text-white font-bold py-2 px-4 rounded"
+              onClick={handleRestart}
+            >
+              Restart
+            </button>
+          </div>
         </div>
       </div>
     </>

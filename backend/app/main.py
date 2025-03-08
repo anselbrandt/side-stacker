@@ -18,6 +18,7 @@ from app.db import (
     find_game,
     find_games_by_owner,
     update_game,
+    reset_board,
 )
 from app.constants import ROOT_PATH, COOKIE_NAME, COOKIE_EXPIRY
 from app.auth import CurrentUser, create_user, create_jwt
@@ -121,6 +122,22 @@ async def create_move(
         position = (move.i, move.j)
         symbol = move.player
         updated_game = update_game(session, game, position, symbol)
+        return updated_game
+
+
+class Reset(BaseModel):
+    id: int
+
+
+@app.post("/reset")
+async def reset(
+    reset: Reset, user: CurrentUser, session: Session = Depends(get_session)
+):
+    if user is None:
+        raise HTTPException(status_code=404, detail="Item not found")
+    else:
+        game = find_game(session, game_id=reset.id)
+        updated_game = reset_board(session, game)
         return updated_game
 
 

@@ -1,3 +1,3 @@
-from .game import create_game
+from .game import create_game, new_board
 
-__all__ = [create_game]
+__all__ = [create_game, new_board]

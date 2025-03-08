@@ -3,6 +3,7 @@ from typing import Tuple, Optional
 from sqlmodel import create_engine, SQLModel, Session, select, delete
 from app.user_models import User
 from app.game_models import ActiveGame
+from app.game import new_board
 
 DATABASE_URL = "sqlite:///db.sqlite"
 
@@ -80,5 +81,14 @@ def update_game(
     else:
         raise ValueError("Position already occupied")
 
+    game.board = game.get_board()
+    return game
+
+
+def reset_board(session: Session, game: ActiveGame) -> ActiveGame:
+    board = new_board()
+    game.set_board(board)
+    session.commit()
+    session.refresh(game)
     game.board = game.get_board()
     return game
