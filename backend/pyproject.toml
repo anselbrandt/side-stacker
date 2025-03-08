@@ -1,0 +1,27 @@
+[project]
+name = "backend"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12.8"
+dependencies = [
+    "fastapi[standard]>=0.115.11",
+    "python-dotenv>=1.0.1",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3.5",
+    "ruff>=0.9.9",
+    "taskipy>=1.14.1",
+]
+
+[tool.ruff]
+include = ["pyproject.toml", "app/**/*.py", "tests/**/*.py", "utils/**/*.py"]
+
+[tool.taskipy.tasks]
+test = "uv run pytest -q"
+test_debug = "uv run pytest -s"
+dev = "uv run uvicorn app.main:app --reload --reload-include '**/*.html' --reload-include '**/*.css' --reload-include '**/*.js'"
+start = "uv run uvicorn app.main:app"
+lint = "uv run ruff check"
