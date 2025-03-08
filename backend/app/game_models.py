@@ -3,7 +3,7 @@ from sqlmodel import SQLModel, Field
 import json
 
 
-class ActivateGame(SQLModel, table=True):
+class ActiveGame(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     owner: int = Field(foreign_key="user.id")
     expires: int

@@ -1,6 +1,5 @@
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import NewType
 
 from fastapi import Depends, FastAPI, Request, Response, status, HTTPException
 from fastapi.responses import JSONResponse
