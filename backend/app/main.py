@@ -14,6 +14,7 @@ from app.db import (
     add_user,
     cleanup_users,
     add_game,
+    cleanup_games,
     find_game,
     find_games_by_owner,
     update_game,
@@ -92,6 +93,7 @@ async def login(user: CurrentUser, session: Session = Depends(get_session)):
 async def get_board(user: CurrentUser, session: Session = Depends(get_session)):
     if user is None:
         raise HTTPException(status_code=404, detail="Item not found")
+    cleanup_games(session)
     existing_game = find_games_by_owner(session, user["id"])
     if existing_game:
         return existing_game
