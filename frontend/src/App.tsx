@@ -15,9 +15,10 @@ interface Coordinates {
   j: number;
 }
 
+type Symbol = "X" | "O" | undefined;
 interface Cell {
   coordinates: Coordinates;
-  value?: "X" | "O" | null;
+  symbol?: Symbol;
 }
 
 interface User {
@@ -29,7 +30,7 @@ function App() {
   const [user, setUser] = useState<User>();
   const [gameId, setGameId] = useState<number>();
   const [board, setBoard] = useState<Cell[][]>();
-  const [player] = useState("X");
+  const [player, setPlayer] = useState<Symbol>("X");
   const [validMoves, setValidMoves] = useState<[number, number][]>();
 
   useEffect(() => {
@@ -45,19 +46,23 @@ function App() {
     login();
   }, []);
 
+  const updateGame = (game: Game) => {
+    setGameId(game.id);
+    const gameboard = game.board.map((row, i) =>
+      row.map((val, j) => ({ coordinates: { i, j }, symbol: val }))
+    );
+    setBoard(gameboard);
+    const valid = getValidMoves(game.board);
+    setValidMoves(valid);
+  };
+
   useEffect(() => {
     async function getGame() {
       const handleGetGame = async () => {
         if (!user) return;
         const response = await fetch(`${API_URL}/board`);
         const game = (await response.json()) as Game;
-        setGameId(game.id);
-        const gameboard = game.board.map((row, i) =>
-          row.map((val, j) => ({ coordinates: { i, j }, value: val }))
-        );
-        setBoard(gameboard);
-        const valid = getValidMoves(game.board);
-        setValidMoves(valid);
+        updateGame(game);
       };
       await handleGetGame();
     }
@@ -82,13 +87,7 @@ function App() {
       body: JSON.stringify(payload),
     });
     const game = (await response.json()) as Game;
-    setGameId(game.id);
-    const gameboard = game.board.map((row, i) =>
-      row.map((val, j) => ({ coordinates: { i, j }, value: val }))
-    );
-    setBoard(gameboard);
-    const valid = getValidMoves(game.board);
-    setValidMoves(valid);
+    updateGame(game);
   };
 
   const hintStyle = (cell: Cell) => {
@@ -100,14 +99,18 @@ function App() {
     }
   };
 
-  const occupiedColor = (cell: Cell) => {
-    if (cell.value === "X") {
+  const occupiedColor = (symbol: Symbol) => {
+    if (symbol === "X") {
       return "bg-sky-700";
     }
-    if (cell.value === "O") {
+    if (symbol === "O") {
       return "bg-orange-500";
     }
     return "";
+  };
+
+  const handleSwitchPlayer = () => {
+    setPlayer((prev) => (prev === "X" ? "O" : "X"));
   };
 
   return (
@@ -134,12 +137,25 @@ function App() {
               >
                 <div
                   className={`w-9 h-9 ${occupiedColor(
-                    cell
+                    cell.symbol
                   )} rounded-full drop-shadow-lg`}
                 />
               </div>
             ))}
           </div>
+        </div>
+        <div className="m-2 flex flex-row">
+          <button
+            className="m-2 bg-sky-700 text-slate-100 font-mono hover:bg-sky-600 hover:text-white font-bold py-2 px-4 rounded"
+            onClick={handleSwitchPlayer}
+          >
+            Switch Player
+          </button>
+          <div
+            className={`m-2 w-9 h-9 ${occupiedColor(
+              player
+            )} rounded-full drop-shadow-lg`}
+          />
         </div>
       </div>
     </>
