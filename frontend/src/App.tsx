@@ -113,7 +113,13 @@ function App() {
   return (
     <>
       <div className="min-h-screen bg-zinc-100 flex flex-col items-center justify-center">
-        <div className="m-2 my-8 text-2xl font-mono font-medium text-slate-400">
+        <div className="text-4xl [word-spacing: 2px] font-mono font-bold text-slate-500">
+          Side Stacker
+        </div>
+        <div className="text-md font-mono font-medium text-slate-500">
+          Connect Four, but sideways.
+        </div>
+        <div className="m-2 my-8 text-2xl font-mono tracking-tight font-medium text-slate-500">
           Hello, {user?.name}!
         </div>
         <div className="m-2">
