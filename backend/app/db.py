@@ -1,6 +1,7 @@
 import time
 from sqlmodel import create_engine, SQLModel, Session, select, delete
 from app.user_models import User
+from app.game_models import ActivateGame
 
 DATABASE_URL = "sqlite:///db.sqlite"
 
@@ -34,3 +35,10 @@ def add_user(session: Session, user: User):
     session.commit()
     session.refresh(user)
     return user
+
+
+def add_game(session: Session, game: ActivateGame):
+    session.add(game)
+    session.commit()
+    session.refresh(game)
+    return game

@@ -1,15 +1,17 @@
 from contextlib import asynccontextmanager
 from pathlib import Path
+from typing import NewType
 
-from fastapi import Depends, FastAPI, Request, Response, status
+from fastapi import Depends, FastAPI, Request, Response, status, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from sqlmodel import Session
 
-from app.db import init_db, get_session, add_user, cleanup_users
+from app.db import init_db, get_session, add_user, cleanup_users, add_game
 from app.constants import ROOT_PATH, COOKIE_NAME, COOKIE_EXPIRY
 from app.auth import CurrentUser, create_user, create_jwt
+from app.game import create_game
 
 dist = Path("../dist")
 dist.mkdir(exist_ok=True)
@@ -75,6 +77,16 @@ async def login(user: CurrentUser, session: Session = Depends(get_session)):
             samesite="strict",
         )
         return response
+
+
+@app.get("/board")
+async def get_board(user: CurrentUser, session: Session = Depends(get_session)):
+    if user is None:
+        raise HTTPException(status_code=404, detail="Item not found")
+    else:
+        game = create_game(user)
+        new_game = add_game(session, game)
+        return new_game
 
 
 @app.post("/logout")
