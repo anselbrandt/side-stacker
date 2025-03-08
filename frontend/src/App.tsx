@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import "./App.css";
 import { API_URL } from "./constants";
+import { getValidMoves, isValid } from "./utils";
 
 interface Game {
   id: number;
@@ -28,6 +29,7 @@ function App() {
   const [user, setUser] = useState<User>();
   const [board, setBoard] = useState<Cell[][]>();
   const [player] = useState("X");
+  const [validMoves, setValidMoves] = useState<[number, number][]>();
 
   useEffect(() => {
     async function login() {
@@ -51,6 +53,8 @@ function App() {
         const gameboard = game.board.map((row, i) =>
           row.map((val, j) => ({ coordinates: { i, j }, value: val }))
         );
+        const valid = getValidMoves(game.board);
+        setValidMoves(valid);
         setBoard(gameboard);
       };
       await handleGetGame();
@@ -67,12 +71,23 @@ function App() {
     console.log(payload);
   };
 
-  const getColor = (i: number) => {
-    if (i % 2 === 0) {
-      return "bg-sky-700";
+  const hintStyle = (cell: Cell) => {
+    const { i, j } = cell.coordinates;
+    if (validMoves && isValid(validMoves, [i, j])) {
+      return "hover:cursor-pointer hover:hover:bg-slate-100";
     } else {
+      return "";
+    }
+  };
+
+  const gamePieceColor = (cell: Cell) => {
+    if (cell.value === "X") {
+      return "bg-sky-700";
+    }
+    if (cell.value === "O") {
       return "bg-orange-500";
     }
+    return "";
   };
 
   return (
@@ -86,12 +101,14 @@ function App() {
             {board?.flat().map((cell, i) => (
               <div
                 key={i}
-                className="w-11 h-11 bg-white rounded-md drop-shadow-md flex items-center justify-center hover:cursor-pointer hover:bg-slate-100"
+                className={`w-11 h-11 bg-white rounded-md drop-shadow-md flex items-center justify-center ${hintStyle(
+                  cell
+                )}`}
                 onClick={() => handleMove(cell)}
               >
                 <div
-                  className={`w-9 h-9 ${getColor(
-                    i
+                  className={`w-9 h-9 ${gamePieceColor(
+                    cell
                   )} rounded-full drop-shadow-lg`}
                 />
               </div>
