@@ -1,4 +1,5 @@
 import time
+from typing import Tuple, Optional
 from sqlmodel import create_engine, SQLModel, Session, select, delete
 from app.user_models import User
 from app.game_models import ActiveGame
@@ -41,5 +42,27 @@ def add_game(session: Session, game: ActiveGame):
     session.add(game)
     session.commit()
     session.refresh(game)
+    game.board = game.get_board()
+    return game
+
+
+def find_game(session: Session, game_id: int) -> Optional[ActiveGame]:
+    return session.get(ActiveGame, game_id)
+
+
+def update_game(
+    session: Session, game: ActiveGame, position: Tuple[int, int], symbol: str
+) -> ActiveGame:
+    row, col = position
+    board = game.get_board()
+
+    if board[row][col] is None:
+        board[row][col] = symbol
+        game.set_board(board)
+        session.commit()
+        session.refresh(game)
+    else:
+        raise ValueError("Position already occupied")
+
     game.board = game.get_board()
     return game

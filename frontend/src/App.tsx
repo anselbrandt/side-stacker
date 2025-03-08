@@ -27,6 +27,7 @@ interface User {
 
 function App() {
   const [user, setUser] = useState<User>();
+  const [gameId, setGameId] = useState<number>();
   const [board, setBoard] = useState<Cell[][]>();
   const [player] = useState("X");
   const [validMoves, setValidMoves] = useState<[number, number][]>();
@@ -50,12 +51,13 @@ function App() {
         if (!user) return;
         const response = await fetch(`${API_URL}/board`);
         const game = (await response.json()) as Game;
+        setGameId(game.id);
         const gameboard = game.board.map((row, i) =>
           row.map((val, j) => ({ coordinates: { i, j }, value: val }))
         );
+        setBoard(gameboard);
         const valid = getValidMoves(game.board);
         setValidMoves(valid);
-        setBoard(gameboard);
       };
       await handleGetGame();
     }
@@ -66,9 +68,24 @@ function App() {
   const handleMove = async (cell: Cell) => {
     const payload = {
       ...cell.coordinates,
+      id: gameId,
       player,
     };
-    console.log(payload);
+    const response = await fetch(`${API_URL}/move`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+    const game = (await response.json()) as Game;
+    setGameId(game.id);
+    const gameboard = game.board.map((row, i) =>
+      row.map((val, j) => ({ coordinates: { i, j }, value: val }))
+    );
+    setBoard(gameboard);
+    const valid = getValidMoves(game.board);
+    setValidMoves(valid);
   };
 
   const hintStyle = (cell: Cell) => {
@@ -80,7 +97,7 @@ function App() {
     }
   };
 
-  const gamePieceColor = (cell: Cell) => {
+  const occupiedColor = (cell: Cell) => {
     if (cell.value === "X") {
       return "bg-sky-700";
     }
@@ -107,7 +124,7 @@ function App() {
                 onClick={() => handleMove(cell)}
               >
                 <div
-                  className={`w-9 h-9 ${gamePieceColor(
+                  className={`w-9 h-9 ${occupiedColor(
                     cell
                   )} rounded-full drop-shadow-lg`}
                 />

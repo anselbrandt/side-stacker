@@ -6,8 +6,17 @@ from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from sqlmodel import Session
+from pydantic import BaseModel
 
-from app.db import init_db, get_session, add_user, cleanup_users, add_game
+from app.db import (
+    init_db,
+    get_session,
+    add_user,
+    cleanup_users,
+    add_game,
+    find_game,
+    update_game,
+)
 from app.constants import ROOT_PATH, COOKIE_NAME, COOKIE_EXPIRY
 from app.auth import CurrentUser, create_user, create_jwt
 from app.game import create_game
@@ -86,6 +95,27 @@ async def get_board(user: CurrentUser, session: Session = Depends(get_session)):
         game = create_game(user)
         new_game = add_game(session, game)
         return new_game
+
+
+class Move(BaseModel):
+    i: int
+    j: int
+    id: int
+    player: str
+
+
+@app.post("/move")
+async def create_move(
+    move: Move, user: CurrentUser, session: Session = Depends(get_session)
+):
+    if user is None:
+        raise HTTPException(status_code=404, detail="Item not found")
+    else:
+        game = find_game(session, game_id=move.id)
+        position = (move.i, move.j)
+        symbol = move.player
+        updated_game = update_game(session, game, position, symbol)
+        return updated_game
 
 
 @app.post("/logout")
