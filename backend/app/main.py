@@ -15,6 +15,7 @@ from app.db import (
     cleanup_users,
     add_game,
     find_game,
+    find_games_by_owner,
     update_game,
 )
 from app.constants import ROOT_PATH, COOKIE_NAME, COOKIE_EXPIRY
@@ -91,6 +92,9 @@ async def login(user: CurrentUser, session: Session = Depends(get_session)):
 async def get_board(user: CurrentUser, session: Session = Depends(get_session)):
     if user is None:
         raise HTTPException(status_code=404, detail="Item not found")
+    existing_game = find_games_by_owner(session, user["id"])
+    if existing_game:
+        return existing_game
     else:
         game = create_game(user)
         new_game = add_game(session, game)

@@ -1,5 +1,5 @@
 import time
-from typing import Tuple, Optional
+from typing import List, Tuple, Optional
 from sqlmodel import create_engine, SQLModel, Session, select, delete
 from app.user_models import User
 from app.game_models import ActiveGame
@@ -48,6 +48,16 @@ def add_game(session: Session, game: ActiveGame):
 
 def find_game(session: Session, game_id: int) -> Optional[ActiveGame]:
     return session.get(ActiveGame, game_id)
+
+
+def find_games_by_owner(session: Session, owner_id: int) -> Optional[ActiveGame]:
+    statement = select(ActiveGame).where(ActiveGame.owner == owner_id).limit(1)
+    game = session.exec(statement).first()
+    if game:
+        game.board = game.get_board()
+        return game
+    else:
+        return None
 
 
 def update_game(
