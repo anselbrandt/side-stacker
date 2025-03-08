@@ -66,6 +66,9 @@ function App() {
   }, [user]);
 
   const handleMove = async (cell: Cell) => {
+    const { i, j } = cell.coordinates;
+    if (!validMoves) return;
+    if (!isValid(validMoves, [i, j])) return;
     const payload = {
       ...cell.coordinates,
       id: gameId,
