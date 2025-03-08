@@ -67,19 +67,33 @@ function App() {
     console.log(payload);
   };
 
+  const getColor = (i: number) => {
+    if (i % 2 === 0) {
+      return "bg-sky-700";
+    } else {
+      return "bg-orange-500";
+    }
+  };
+
   return (
     <>
-      <div className="min-h-screen flex flex-col items-center justify-center">
-        <div className="m-2">Hello, {user?.name}!</div>
+      <div className="min-h-screen bg-zinc-100 flex flex-col items-center justify-center">
+        <div className="m-2 my-8 text-2xl font-mono font-medium text-slate-400">
+          Hello, {user?.name}!
+        </div>
         <div className="m-2">
-          <div className="grid grid-cols-7 gap-4">
+          <div className="grid grid-cols-7 gap-2">
             {board?.flat().map((cell, i) => (
               <div
                 key={i}
-                className="w-10 h-10 bg-blue-100 flex items-center justify-center hover:cursor-pointer hover:bg-blue-300"
+                className="w-11 h-11 bg-white rounded-md drop-shadow-md flex items-center justify-center hover:cursor-pointer hover:bg-slate-100"
                 onClick={() => handleMove(cell)}
               >
-                {cell.value}
+                <div
+                  className={`w-9 h-9 ${getColor(
+                    i
+                  )} rounded-full drop-shadow-lg`}
+                />
               </div>
             ))}
           </div>
