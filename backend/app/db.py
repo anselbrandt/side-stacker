@@ -1,5 +1,5 @@
 import time
-from typing import List, Tuple, Optional
+from typing import Tuple, Optional
 from sqlmodel import create_engine, SQLModel, Session, select, delete
 from app.user_models import User
 from app.game_models import ActiveGame
@@ -45,10 +45,12 @@ def add_game(session: Session, game: ActiveGame):
     game.board = game.get_board()
     return game
 
+
 def cleanup_games(session: Session):
     current_time = int(time.time())
     session.exec(delete(ActiveGame).where(ActiveGame.expires < current_time))
     session.commit()
+
 
 def find_game(session: Session, game_id: int) -> Optional[ActiveGame]:
     return session.get(ActiveGame, game_id)
