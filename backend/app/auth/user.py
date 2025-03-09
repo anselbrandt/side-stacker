@@ -10,7 +10,7 @@ from app.constants import COOKIE_NAME, TOKEN_ALGORITHM, TOKEN_SECRET
 log = logging.getLogger("uvicorn")
 
 
-def decode_token(token):
+def decode_token(token) -> User:
     user = jwt.decode(token, TOKEN_SECRET, algorithms=[TOKEN_ALGORITHM])
     return user
 

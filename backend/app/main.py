@@ -36,6 +36,7 @@ from app.db import (
 from app.constants import ROOT_PATH, COOKIE_NAME, COOKIE_EXPIRY
 from app.auth import CurrentUser, create_user, create_jwt, decode_token
 from app.game import create_game
+from app.user_models import User
 
 dist = Path("../dist")
 dist.mkdir(exist_ok=True)
@@ -169,8 +170,7 @@ class ConnectionManager:
         self.active_connections: list[WebSocket] = []
         self.users: dict[WebSocket, dict] = {}
 
-    async def connect(self, websocket: WebSocket, token: str):
-        user = decode_token(token)
+    async def connect(self, websocket: WebSocket, user: User):
         self.users[websocket] = user
         await websocket.accept()
         self.active_connections.append(websocket)
@@ -193,21 +193,22 @@ class ConnectionManager:
 manager = ConnectionManager()
 
 
-async def get_token(
+async def get_user_from_token(
     websocket: WebSocket,
     token: Annotated[str | None, Query()] = None,
 ):
     if token is None:
         raise WebSocketException(code=status.WS_1008_POLICY_VIOLATION)
-    return token
+    user = decode_token(token)
+    return user
 
 
 @app.websocket("/ws")
 async def websocket_endpoint(
     websocket: WebSocket,
-    token: Annotated[str, Depends(get_token)],
+    user: Annotated[User, Depends(get_user_from_token)],
 ):
-    await manager.connect(websocket, token)
+    await manager.connect(websocket, user)
     try:
         while True:
             data = await websocket.receive_json()
