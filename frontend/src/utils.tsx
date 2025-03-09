@@ -32,3 +32,6 @@ export const postRequest = async <T,>(
   const data = await response.json();
   return data as T;
 };
+
+export const extractBoard = (board: EnhancedBoard) =>
+  board.map((row) => row.map((cell) => cell.symbol));

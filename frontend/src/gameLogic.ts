@@ -1,5 +1,6 @@
 import { BOARD_SIZE } from "./constants";
 import { PlayerSymbol, Board, Position, EnhancedBoard } from "./types";
+import { extractBoard } from "./utils";
 
 export const getValidMoves = (board: Board): [number, number][] => {
   return board.flatMap((row, i) => {
@@ -92,7 +93,8 @@ export const isWinningMove = (
   gameBoard: EnhancedBoard,
   player: PlayerSymbol
 ) => {
-  const board = gameBoard.map((row) => row.map((cell) => cell.symbol));
+  const board = extractBoard(gameBoard);
+
   for (let i = 0; i < 7; i++) {
     for (let j = 0; j < 7; j++) {
       const position: Position = [i, j];

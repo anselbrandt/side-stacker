@@ -3,6 +3,7 @@ import "./App.css";
 import { getValidMoves, isValid, isWinningMove } from "./gameLogic";
 import { User, Cell, Game, PlayerSymbol, EnhancedBoard } from "./types";
 import { enhancedBoard, getRequest, postRequest } from "./utils";
+import { gameEngine } from "./gameEngine";
 
 function App() {
   const [user, setUser] = useState<User>();
@@ -21,16 +22,15 @@ function App() {
       };
       await handleLogin();
     }
-
     login();
   }, []);
 
   const updateBoard = useCallback((game: Game) => {
-    const valid = getValidMoves(game.board);
-    setValidMoves(valid);
     setGameId(game.id);
     const board = enhancedBoard(game.board);
     setGameBoard(board);
+    const valid = getValidMoves(game.board);
+    setValidMoves(valid);
     return board;
   }, []);
 
@@ -43,15 +43,12 @@ function App() {
       };
       await handleGetGame();
     }
-
     getGame();
   }, [user, updateBoard]);
 
   const handleMove = useCallback(
     async (cell: Cell) => {
-      if (!gameBoard) return;
-      if (gameOver) return;
-      if (!validMoves) return;
+      if (!gameBoard || !validMoves || gameOver) return;
       const { i, j } = cell.coordinates;
       if (!isValid(validMoves, [i, j])) return;
       setHasStarted(true);
@@ -80,6 +77,11 @@ function App() {
     },
     [gameBoard, gameOver, validMoves, gameId, player, updateBoard]
   );
+
+  const handleHumanMove = (cell: Cell) => {
+    if (player === "O") return;
+    handleMove(cell);
+  };
 
   const cellStyle = (cell: Cell) => {
     if (cell.symbol !== null) return "bg-white";
@@ -110,15 +112,10 @@ function App() {
 
   useEffect(() => {
     const autoMove = async () => {
-      if (!hasStarted) return;
-      if (player === "X") return;
-      if (!validMoves) return;
+      if (!hasStarted || player === "X" || !validMoves || !gameBoard) return;
       setTimeout(() => {
-        const selectedCoordinates =
-          validMoves[Math.floor(Math.random() * validMoves.length)];
-        const [i, j] = selectedCoordinates;
-        const selectedMove = gameBoard![i][j];
-        handleMove(selectedMove);
+        const move = gameEngine(gameBoard);
+        handleMove(move);
       }, 1000);
     };
     autoMove();
@@ -144,7 +141,7 @@ function App() {
                 className={`w-11 h-11 rounded-md drop-shadow-md flex items-center justify-center ${cellStyle(
                   cell
                 )}`}
-                onClick={() => handleMove(cell)}
+                onClick={() => handleHumanMove(cell)}
               >
                 <div
                   className={`w-9 h-9 ${symbolColor(
