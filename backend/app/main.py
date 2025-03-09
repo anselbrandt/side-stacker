@@ -1,7 +1,20 @@
 from contextlib import asynccontextmanager
 from pathlib import Path
+from typing import Annotated
 
-from fastapi import Depends, FastAPI, Request, Response, status, HTTPException
+from fastapi import (
+    Depends,
+    FastAPI,
+    Request,
+    Response,
+    status,
+    HTTPException,
+    WebSocket,
+    WebSocketDisconnect,
+    WebSocketException,
+    Cookie,
+    Query,
+)
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -21,7 +34,7 @@ from app.db import (
     reset_board,
 )
 from app.constants import ROOT_PATH, COOKIE_NAME, COOKIE_EXPIRY
-from app.auth import CurrentUser, create_user, create_jwt
+from app.auth import CurrentUser, create_user, create_jwt, decode_token
 from app.game import create_game
 
 dist = Path("../dist")
@@ -149,6 +162,68 @@ async def logout(response: Response):
     response.delete_cookie(COOKIE_NAME)
     response.status_code = status.HTTP_200_OK
     return response
+
+
+class ConnectionManager:
+    def __init__(self):
+        self.active_connections: list[WebSocket] = []
+
+    async def connect(self, websocket: WebSocket):
+        await websocket.accept()
+        self.active_connections.append(websocket)
+
+    def disconnect(self, websocket: WebSocket):
+        self.active_connections.remove(websocket)
+
+    async def send_personal_message(self, message: str, websocket: WebSocket):
+        await websocket.send_text(message)
+
+    async def broadcast(self, message: str):
+        for connection in self.active_connections:
+            await connection.send_text(message)
+
+
+manager = ConnectionManager()
+
+
+connections = {}
+
+
+async def get_token(
+    websocket: WebSocket,
+    session: Annotated[str | None, Cookie()] = None,
+    token: Annotated[str | None, Query()] = None,
+):
+    if session is None and token is None:
+        raise WebSocketException(code=status.WS_1008_POLICY_VIOLATION)
+    return session or token
+
+
+@app.websocket("/ws/{user_id}")
+async def websocket_endpoint(
+    websocket: WebSocket,
+    user_id: int,
+    token: Annotated[str, Depends(get_token)],
+):
+    await manager.connect(websocket)
+    try:
+        while True:
+            data = await websocket.receive_text()
+            user = decode_token(token)
+            user_name = user["name"]
+            if user_id not in connections:
+                connections[user_id] = {
+                    "name": user["name"],
+                    "id": user["id"],
+                    "websocket": websocket,
+                    "token": token,
+                }
+            # await manager.send_personal_message(f"You wrote: {data}", websocket)
+            await manager.broadcast(f"{user_name} has joined")
+    except WebSocketDisconnect:
+        manager.disconnect(websocket)
+        user_name = connections[user_id]["name"]
+        await manager.broadcast(f"{user_name} left the chat")
 
 
 app.mount("/", StaticFiles(directory="../dist", html=True), name="dist")

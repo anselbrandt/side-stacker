@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import "./App.css";
 import { getValidMoves, isValid, isWinningMove } from "./gameLogic";
 import { User, Cell, Game, PlayerSymbol, EnhancedBoard } from "./types";
@@ -13,6 +13,8 @@ function App() {
   const [validMoves, setValidMoves] = useState<[number, number][]>();
   const [gameOver, setGameOver] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);
+
+  const ws = useRef<WebSocket>(null);
 
   useEffect(() => {
     async function login() {
@@ -120,6 +122,32 @@ function App() {
     };
     autoMove();
   }, [player, gameBoard, handleMove, hasStarted, validMoves]);
+
+  useEffect(() => {
+    const connect = () => {
+      if (!user) return;
+
+      ws.current = new WebSocket(
+        `ws://localhost:8000/ws/${user?.id}?token=${user?.token}`
+      );
+
+      const socket = ws.current;
+
+      socket.addEventListener("open", () => {
+        socket.send("Hello Server!");
+      });
+
+      socket.addEventListener("message", (event) => {
+        console.log("Message from server ", event.data);
+      });
+    };
+
+    connect();
+
+    return () => {
+      ws.current?.close();
+    };
+  }, [user]);
 
   return (
     <>

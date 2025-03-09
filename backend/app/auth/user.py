@@ -10,12 +10,17 @@ from app.constants import COOKIE_NAME, TOKEN_ALGORITHM, TOKEN_SECRET
 log = logging.getLogger("uvicorn")
 
 
+def decode_token(token):
+    user = jwt.decode(token, TOKEN_SECRET, algorithms=[TOKEN_ALGORITHM])
+    return user
+
+
 def get_current_user(request: Request) -> User | None:
     token = request.cookies.get(COOKIE_NAME)
     if token is None:
         return None
     try:
-        user = jwt.decode(token, TOKEN_SECRET, algorithms=[TOKEN_ALGORITHM])
+        user = decode_token(token)
         return user
     except Exception as error:
         log.info(f"{request.headers.items()}_{error}")
