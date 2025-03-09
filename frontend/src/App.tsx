@@ -11,6 +11,7 @@ function App() {
   const [player, setPlayer] = useState<Symbol>("X");
   const [validMoves, setValidMoves] = useState<[number, number][]>();
   const [gameOver, setGameOver] = useState(false);
+  const [hasStarted, setHasStarted] = useState(false);
 
   useEffect(() => {
     async function login() {
@@ -53,9 +54,10 @@ function App() {
   const handleMove = async (cell: Cell) => {
     if (!gameBoard) return;
     if (gameOver) return;
-    const { i, j } = cell.coordinates;
     if (!validMoves) return;
+    const { i, j } = cell.coordinates;
     if (!isValid(validMoves, [i, j])) return;
+    setHasStarted(true);
     const payload = {
       ...cell.coordinates,
       id: gameId,
@@ -73,10 +75,18 @@ function App() {
     if (isWinningMove(board, player)) {
       setGameOver(true);
       setTimeout(() => {
-        alert("Youn win!");
+        if (player === "X") {
+          alert("Youn win!");
+        } else {
+          alert("Computer wins.");
+          setPlayer((prev) => (prev === "X" ? "O" : "X"));
+          setHasStarted(false);
+        }
       }, 500);
+      return;
+    } else {
+      setPlayer((prev) => (prev === "X" ? "O" : "X"));
     }
-    setPlayer((prev) => (prev === "X" ? "O" : "X"));
   };
 
   const isOccupied = (cell: Cell) => cell.symbol !== null;
@@ -113,7 +123,24 @@ function App() {
     });
     const game = (await response.json()) as Game;
     updateBoard(game);
+    setHasStarted(false);
   };
+
+  useEffect(() => {
+    const autoMove = async () => {
+      if (!hasStarted) return;
+      if (player === "X") return;
+      if (!validMoves) return;
+      setTimeout(() => {
+        const selectedCoordinates =
+          validMoves[Math.floor(Math.random() * validMoves.length)];
+        const [i, j] = selectedCoordinates;
+        const selectedMove = gameBoard![i][j];
+        handleMove(selectedMove);
+      }, 1000);
+    };
+    autoMove();
+  }, [player]);
 
   return (
     <>
