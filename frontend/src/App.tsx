@@ -127,9 +127,11 @@ function App() {
     const connect = () => {
       if (!user) return;
 
-      ws.current = new WebSocket(
-        `ws://localhost:8000/ws/${user?.id}?token=${user?.token}`
-      );
+      if (!ws.current) {
+        ws.current = new WebSocket(
+          `ws://localhost:8000/ws/${user?.id}?token=${user?.token}`
+        );
+      }
 
       const socket = ws.current;
 
