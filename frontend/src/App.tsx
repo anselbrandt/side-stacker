@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import "./App.css";
 import { API_URL } from "./constants";
 import { getValidMoves, isValid, isWinningMove } from "./utils";
@@ -26,7 +26,7 @@ function App() {
     login();
   }, []);
 
-  const updateBoard = (game: Game) => {
+  const updateBoard = useCallback((game: Game) => {
     const valid = getValidMoves(game.board);
     setValidMoves(valid);
     setGameId(game.id);
@@ -35,7 +35,7 @@ function App() {
     );
     setGameBoard(board);
     return board;
-  };
+  }, []);
 
   useEffect(() => {
     async function getGame() {
@@ -49,45 +49,48 @@ function App() {
     }
 
     getGame();
-  }, [user]);
+  }, [user, updateBoard]);
 
-  const handleMove = async (cell: Cell) => {
-    if (!gameBoard) return;
-    if (gameOver) return;
-    if (!validMoves) return;
-    const { i, j } = cell.coordinates;
-    if (!isValid(validMoves, [i, j])) return;
-    setHasStarted(true);
-    const payload = {
-      ...cell.coordinates,
-      id: gameId,
-      player,
-    };
-    const response = await fetch(`${API_URL}/move`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    });
-    const game = (await response.json()) as Game;
-    const board = updateBoard(game);
-    if (isWinningMove(board, player)) {
-      setGameOver(true);
-      setTimeout(() => {
-        if (player === "X") {
-          alert("Youn win!");
-        } else {
-          alert("Computer wins.");
-          setPlayer((prev) => (prev === "X" ? "O" : "X"));
-          setHasStarted(false);
-        }
-      }, 500);
-      return;
-    } else {
-      setPlayer((prev) => (prev === "X" ? "O" : "X"));
-    }
-  };
+  const handleMove = useCallback(
+    async (cell: Cell) => {
+      if (!gameBoard) return;
+      if (gameOver) return;
+      if (!validMoves) return;
+      const { i, j } = cell.coordinates;
+      if (!isValid(validMoves, [i, j])) return;
+      setHasStarted(true);
+      const payload = {
+        ...cell.coordinates,
+        id: gameId,
+        player,
+      };
+      const response = await fetch(`${API_URL}/move`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+      const game = (await response.json()) as Game;
+      const board = updateBoard(game);
+      if (isWinningMove(board, player)) {
+        setGameOver(true);
+        setTimeout(() => {
+          if (player === "X") {
+            alert("Youn win!");
+          } else {
+            alert("Computer wins.");
+            setPlayer((prev) => (prev === "X" ? "O" : "X"));
+            setHasStarted(false);
+          }
+        }, 500);
+        return;
+      } else {
+        setPlayer((prev) => (prev === "X" ? "O" : "X"));
+      }
+    },
+    [gameBoard, gameOver, validMoves, gameId, player, updateBoard]
+  );
 
   const isOccupied = (cell: Cell) => cell.symbol !== null;
 
@@ -140,7 +143,7 @@ function App() {
       }, 1000);
     };
     autoMove();
-  }, [player]);
+  }, [player, gameBoard, handleMove, hasStarted, validMoves]);
 
   return (
     <>
