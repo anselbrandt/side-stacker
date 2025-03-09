@@ -76,6 +76,7 @@ function App() {
         alert("Youn win!");
       }, 500);
     }
+    setPlayer((prev) => (prev === "X" ? "O" : "X"));
   };
 
   const isOccupied = (cell: Cell) => cell.symbol !== null;
@@ -98,10 +99,6 @@ function App() {
       return "bg-orange-500";
     }
     return "";
-  };
-
-  const handleSwitchPlayer = () => {
-    setPlayer((prev) => (prev === "X" ? "O" : "X"));
   };
 
   const handleRestart = async () => {
@@ -150,19 +147,6 @@ function App() {
           </div>
         </div>
         <div className="flex flex-col">
-          <div className="flex flex-row">
-            <button
-              className="m-2 bg-sky-700 text-slate-100 font-mono hover:bg-sky-600 hover:text-white font-bold py-2 px-4 rounded"
-              onClick={handleSwitchPlayer}
-            >
-              Switch Player
-            </button>
-            <div
-              className={`m-2 w-9 h-9 ${symbolColor(
-                player
-              )} rounded-full drop-shadow-lg`}
-            />
-          </div>
           <div>
             <button
               className="m-2 bg-sky-700 text-slate-100 font-mono hover:bg-sky-600 hover:text-white font-bold py-2 px-4 rounded"
