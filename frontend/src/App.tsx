@@ -136,7 +136,7 @@ function App() {
       const socket = ws.current;
 
       socket.addEventListener("open", () => {
-        socket.send("Hello Server!");
+        socket.send(JSON.stringify({ message: `Hello from ${user.name}` }));
       });
 
       socket.addEventListener("message", (event) => {

@@ -167,15 +167,22 @@ async def logout(response: Response):
 class ConnectionManager:
     def __init__(self):
         self.active_connections: list[WebSocket] = []
+        self.users: dict[WebSocket, dict] = {}
 
-    async def connect(self, websocket: WebSocket):
+    async def connect(self, websocket: WebSocket, token: str):
+        user = decode_token(token)
+        self.users[websocket] = user
         await websocket.accept()
         self.active_connections.append(websocket)
 
     def disconnect(self, websocket: WebSocket):
-        self.active_connections.remove(websocket)
+        if websocket in self.active_connections:
+            self.active_connections.remove(websocket)
+            user = self.users[websocket]
+            del self.users[websocket]
+            return user
 
-    async def send_personal_message(self, data, websocket: WebSocket):
+    async def send(self, data, websocket: WebSocket):
         await websocket.send_json(data=data)
 
     async def broadcast(self, data):
@@ -184,9 +191,6 @@ class ConnectionManager:
 
 
 manager = ConnectionManager()
-
-
-connections = {}
 
 
 async def get_token(
@@ -204,24 +208,19 @@ async def websocket_endpoint(
     user_id: int,
     token: Annotated[str, Depends(get_token)],
 ):
-    await manager.connect(websocket)
+    await manager.connect(websocket, token)
     try:
         while True:
-            data = await websocket.receive_text()
-            user = decode_token(token)
-            user_name = user["name"]
-            if user_id not in connections:
-                connections[user_id] = {
-                    "name": user["name"],
-                    "id": user["id"],
-                    "websocket": websocket,
-                    "token": token,
-                }
-            # await manager.send_personal_message(f"You wrote: {data}", websocket)
+            data = await websocket.receive_json()
+            user_name = manager.users.get(websocket)["name"]
+            await manager.send(
+                data={"message": f'Your message was: "{data["message"]}"'},
+                websocket=websocket,
+            )
             await manager.broadcast(data={"joined": user_name})
     except WebSocketDisconnect:
-        manager.disconnect(websocket)
-        user_name = connections[user_id]["name"]
+        user = manager.disconnect(websocket)
+        user_name = user["name"]
         await manager.broadcast(data={"left": user_name})
 
 
