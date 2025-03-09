@@ -178,9 +178,9 @@ class ConnectionManager:
     def disconnect(self, websocket: WebSocket):
         if websocket in self.active_connections:
             self.active_connections.remove(websocket)
-            user = self.users[websocket]
+            deleted_user = self.users[websocket]
             del self.users[websocket]
-            return user
+            return deleted_user
 
     async def send(self, data, websocket: WebSocket):
         await websocket.send_json(data=data)
