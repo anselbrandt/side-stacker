@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 import "./App.css";
-import { API_URL } from "./constants";
-import { getValidMoves, isValid, isWinningMove } from "./utils";
+import { getValidMoves, isValid, isWinningMove } from "./gameLogic";
 import { User, Cell, Game, Symbol, EnhancedBoard } from "./types";
+import { enhancedBoard, getRequest, postRequest } from "./utils";
 
 function App() {
   const [user, setUser] = useState<User>();
@@ -16,8 +16,7 @@ function App() {
   useEffect(() => {
     async function login() {
       const handleLogin = async () => {
-        const response = await fetch(`${API_URL}/login`);
-        const user = (await response.json()) as User;
+        const user = await getRequest<User>("/login");
         setUser(user);
       };
       await handleLogin();
@@ -30,9 +29,7 @@ function App() {
     const valid = getValidMoves(game.board);
     setValidMoves(valid);
     setGameId(game.id);
-    const board = game.board.map((row, i) =>
-      row.map((val, j) => ({ coordinates: { i, j }, symbol: val }))
-    );
+    const board = enhancedBoard(game.board);
     setGameBoard(board);
     return board;
   }, []);
@@ -41,8 +38,7 @@ function App() {
     async function getGame() {
       const handleGetGame = async () => {
         if (!user) return;
-        const response = await fetch(`${API_URL}/board`);
-        const game = (await response.json()) as Game;
+        const game = await getRequest<Game>("/board");
         updateBoard(game);
       };
       await handleGetGame();
@@ -64,14 +60,7 @@ function App() {
         id: gameId,
         player,
       };
-      const response = await fetch(`${API_URL}/move`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-      const game = (await response.json()) as Game;
+      const game = await postRequest<Game>("/move", payload);
       const board = updateBoard(game);
       if (isWinningMove(board, player)) {
         setGameOver(true);
@@ -117,14 +106,8 @@ function App() {
   const handleRestart = async () => {
     alert("Are you sure?");
     setGameOver(false);
-    const response = await fetch(`${API_URL}/reset`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ id: gameId }),
-    });
-    const game = (await response.json()) as Game;
+
+    const game = await postRequest<Game>("/reset", { id: gameId });
     updateBoard(game);
     setHasStarted(false);
   };
