@@ -1,37 +1,16 @@
 import { useState, useEffect } from "react";
 import "./App.css";
 import { API_URL } from "./constants";
-import { getValidMoves, isValid } from "./utils";
-
-interface Game {
-  id: number;
-  owner: number;
-  board: [][];
-  expires: number;
-}
-
-interface Coordinates {
-  i: number;
-  j: number;
-}
-
-type Symbol = "X" | "O" | undefined;
-interface Cell {
-  coordinates: Coordinates;
-  symbol?: Symbol;
-}
-
-interface User {
-  name: string;
-  id: number;
-}
+import { getValidMoves, isValid, isWinningMove } from "./utils";
+import { User, Cell, Game, Symbol, EnhancedBoard } from "./types";
 
 function App() {
   const [user, setUser] = useState<User>();
   const [gameId, setGameId] = useState<number>();
-  const [board, setBoard] = useState<Cell[][]>();
+  const [gameBoard, setGameBoard] = useState<EnhancedBoard>();
   const [player, setPlayer] = useState<Symbol>("X");
   const [validMoves, setValidMoves] = useState<[number, number][]>();
+  const [gameOver, setGameOver] = useState(false);
 
   useEffect(() => {
     async function login() {
@@ -46,14 +25,15 @@ function App() {
     login();
   }, []);
 
-  const updateGame = (game: Game) => {
-    setGameId(game.id);
-    const gameboard = game.board.map((row, i) =>
-      row.map((val, j) => ({ coordinates: { i, j }, symbol: val }))
-    );
-    setBoard(gameboard);
+  const updateBoard = (game: Game) => {
     const valid = getValidMoves(game.board);
     setValidMoves(valid);
+    setGameId(game.id);
+    const board = game.board.map((row, i) =>
+      row.map((val, j) => ({ coordinates: { i, j }, symbol: val }))
+    );
+    setGameBoard(board);
+    return board;
   };
 
   useEffect(() => {
@@ -62,7 +42,7 @@ function App() {
         if (!user) return;
         const response = await fetch(`${API_URL}/board`);
         const game = (await response.json()) as Game;
-        updateGame(game);
+        updateBoard(game);
       };
       await handleGetGame();
     }
@@ -71,6 +51,8 @@ function App() {
   }, [user]);
 
   const handleMove = async (cell: Cell) => {
+    if (!gameBoard) return;
+    if (gameOver) return;
     const { i, j } = cell.coordinates;
     if (!validMoves) return;
     if (!isValid(validMoves, [i, j])) return;
@@ -87,7 +69,13 @@ function App() {
       body: JSON.stringify(payload),
     });
     const game = (await response.json()) as Game;
-    updateGame(game);
+    const board = updateBoard(game);
+    if (isWinningMove(board, player)) {
+      setGameOver(true);
+      setTimeout(() => {
+        alert("Youn win!");
+      }, 500);
+    }
   };
 
   const isOccupied = (cell: Cell) => cell.symbol !== null;
@@ -118,6 +106,7 @@ function App() {
 
   const handleRestart = async () => {
     alert("Are you sure?");
+    setGameOver(false);
     const response = await fetch(`${API_URL}/reset`, {
       method: "POST",
       headers: {
@@ -126,7 +115,7 @@ function App() {
       body: JSON.stringify({ id: gameId }),
     });
     const game = (await response.json()) as Game;
-    updateGame(game);
+    updateBoard(game);
   };
 
   return (
@@ -143,7 +132,7 @@ function App() {
         </div>
         <div className="m-2">
           <div className="grid grid-cols-7 gap-2">
-            {board?.flat().map((cell, i) => (
+            {gameBoard?.flat().map((cell, i) => (
               <div
                 key={i}
                 className={`w-11 h-11 rounded-md drop-shadow-md flex items-center justify-center ${cellStyle(
