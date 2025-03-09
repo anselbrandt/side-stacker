@@ -24,6 +24,7 @@ export interface Game {
 export interface User {
   name: string;
   id: number;
+  token: string;
 }
 
 export type Position = [number, number];

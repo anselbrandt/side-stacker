@@ -70,15 +70,18 @@ async def add(
 
 
 @app.get("/login")
-async def login(user: CurrentUser, session: Session = Depends(get_session)):
+async def login(
+    request: Request, user: CurrentUser, session: Session = Depends(get_session)
+):
     cleanup_users(session)
     if user:
-        return user
+        jwt_token = request.cookies.get(COOKIE_NAME)
+        return {**user, "token": jwt_token}
     else:
         user = create_user()
         new_user = add_user(session, user)
         jwt_token = create_jwt(new_user)
-        response = JSONResponse(content={**user.model_dump()})
+        response = JSONResponse(content={**user.model_dump(), "token": jwt_token})
         response.set_cookie(
             key=COOKIE_NAME,
             value=jwt_token,
