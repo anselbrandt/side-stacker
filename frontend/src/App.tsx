@@ -1,14 +1,14 @@
 import { useState, useEffect, useCallback } from "react";
 import "./App.css";
 import { getValidMoves, isValid, isWinningMove } from "./gameLogic";
-import { User, Cell, Game, Symbol, EnhancedBoard } from "./types";
+import { User, Cell, Game, PlayerSymbol, EnhancedBoard } from "./types";
 import { enhancedBoard, getRequest, postRequest } from "./utils";
 
 function App() {
   const [user, setUser] = useState<User>();
   const [gameId, setGameId] = useState<number>();
   const [gameBoard, setGameBoard] = useState<EnhancedBoard>();
-  const [player, setPlayer] = useState<Symbol>("X");
+  const [player, setPlayer] = useState<PlayerSymbol>("X");
   const [validMoves, setValidMoves] = useState<[number, number][]>();
   const [gameOver, setGameOver] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);
@@ -93,7 +93,7 @@ function App() {
     }
   };
 
-  const symbolColor = (symbol: Symbol) => {
+  const symbolColor = (symbol: PlayerSymbol) => {
     if (symbol === "X") {
       return "bg-sky-700";
     }

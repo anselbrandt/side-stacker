@@ -1,5 +1,5 @@
 import { BOARD_SIZE } from "./constants";
-import { Symbol, Board, Position, EnhancedBoard } from "./types";
+import { PlayerSymbol, Board, Position, EnhancedBoard } from "./types";
 
 export const getValidMoves = (board: Board): [number, number][] => {
   return board.flatMap((row, i) => {
@@ -25,10 +25,10 @@ export const isValid = (arr: number[][], pair: number[]): boolean => {
 export const isDiagonalNegative = (
   board: Board,
   position: Position,
-  symbol: Symbol
+  symbol: PlayerSymbol
 ): boolean => {
   const [i, j] = position;
-  const values: Symbol[] = [board[i][j]];
+  const values: PlayerSymbol[] = [board[i][j]];
   for (let x = 1; x < 4; x++) {
     const i2 = i + x;
     const j2 = j + x;
@@ -42,10 +42,10 @@ export const isDiagonalNegative = (
 export const isDiagonalPositive = (
   board: Board,
   position: Position,
-  symbol: Symbol
+  symbol: PlayerSymbol
 ): boolean => {
   const [i, j] = position;
-  const values: Symbol[] = [board[i][j]];
+  const values: PlayerSymbol[] = [board[i][j]];
   for (let x = 1; x < 4; x++) {
     const i2 = i + x;
     const j2 = j - x;
@@ -59,10 +59,10 @@ export const isDiagonalPositive = (
 export const isHorizontal = (
   board: Board,
   position: Position,
-  symbol: Symbol
+  symbol: PlayerSymbol
 ): boolean => {
   const [i, j] = position;
-  const values: Symbol[] = [board[i][j]];
+  const values: PlayerSymbol[] = [board[i][j]];
   for (let x = 1; x < 4; x++) {
     const j2 = j + x;
     if (i >= 0 && i < BOARD_SIZE && j2 >= 0 && j2 < BOARD_SIZE) {
@@ -75,10 +75,10 @@ export const isHorizontal = (
 export const isVertical = (
   board: Board,
   position: Position,
-  symbol: Symbol
+  symbol: PlayerSymbol
 ): boolean => {
   const [i, j] = position;
-  const values: Symbol[] = [board[i][j]];
+  const values: PlayerSymbol[] = [board[i][j]];
   for (let x = 1; x < 4; x++) {
     const i2 = i + x;
     if (i2 >= 0 && i2 < BOARD_SIZE && j >= 0 && j < BOARD_SIZE) {
@@ -88,7 +88,10 @@ export const isVertical = (
   return values.length === 4 && values.every((value) => value === symbol);
 };
 
-export const isWinningMove = (gameBoard: EnhancedBoard, player: Symbol) => {
+export const isWinningMove = (
+  gameBoard: EnhancedBoard,
+  player: PlayerSymbol
+) => {
   const board = gameBoard.map((row) => row.map((cell) => cell.symbol));
   for (let i = 0; i < 7; i++) {
     for (let j = 0; j < 7; j++) {

@@ -3,16 +3,16 @@ interface Coordinates {
   j: number;
 }
 
-export type Symbol = "X" | "O" | null | undefined;
+export type PlayerSymbol = "X" | "O" | null | undefined;
 
 export interface Cell {
   coordinates: Coordinates;
-  symbol?: Symbol;
+  symbol?: PlayerSymbol;
 }
 
 export type EnhancedBoard = Cell[][];
 
-export type Board = Symbol[][];
+export type Board = PlayerSymbol[][];
 
 export interface Game {
   id: number;
