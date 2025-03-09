@@ -129,7 +129,7 @@ function App() {
 
       if (!ws.current) {
         ws.current = new WebSocket(
-          `ws://localhost:8000/ws/${user?.id}?token=${user?.token}`
+          `ws://localhost:8000/ws?token=${user?.token}`
         );
       }
 

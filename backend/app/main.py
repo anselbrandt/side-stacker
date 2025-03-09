@@ -202,10 +202,9 @@ async def get_token(
     return token
 
 
-@app.websocket("/ws/{user_id}")
+@app.websocket("/ws")
 async def websocket_endpoint(
     websocket: WebSocket,
-    user_id: int,
     token: Annotated[str, Depends(get_token)],
 ):
     await manager.connect(websocket, token)
