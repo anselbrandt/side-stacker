@@ -140,7 +140,7 @@ function App() {
       });
 
       socket.addEventListener("message", (event) => {
-        console.log("Message from server ", event.data);
+        console.log(JSON.parse(event.data));
       });
     };
 

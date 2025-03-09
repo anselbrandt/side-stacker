@@ -175,12 +175,12 @@ class ConnectionManager:
     def disconnect(self, websocket: WebSocket):
         self.active_connections.remove(websocket)
 
-    async def send_personal_message(self, message: str, websocket: WebSocket):
-        await websocket.send_text(message)
+    async def send_personal_message(self, data, websocket: WebSocket):
+        await websocket.send_json(data=data)
 
-    async def broadcast(self, message: str):
+    async def broadcast(self, data):
         for connection in self.active_connections:
-            await connection.send_text(message)
+            await connection.send_json(data=data)
 
 
 manager = ConnectionManager()
@@ -219,11 +219,11 @@ async def websocket_endpoint(
                     "token": token,
                 }
             # await manager.send_personal_message(f"You wrote: {data}", websocket)
-            await manager.broadcast(f"{user_name} has joined")
+            await manager.broadcast(data={"joined": user_name})
     except WebSocketDisconnect:
         manager.disconnect(websocket)
         user_name = connections[user_id]["name"]
-        await manager.broadcast(f"{user_name} left the chat")
+        await manager.broadcast(data={"left": user_name})
 
 
 app.mount("/", StaticFiles(directory="../dist", html=True), name="dist")
