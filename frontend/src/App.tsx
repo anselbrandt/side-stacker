@@ -81,10 +81,8 @@ function App() {
     [gameBoard, gameOver, validMoves, gameId, player, updateBoard]
   );
 
-  const isOccupied = (cell: Cell) => cell.symbol !== null;
-
   const cellStyle = (cell: Cell) => {
-    if (isOccupied(cell)) return "bg-white";
+    if (cell.symbol !== null) return "bg-white";
     const { i, j } = cell.coordinates;
     if (validMoves && isValid(validMoves, [i, j])) {
       return "bg-white hover:cursor-pointer hover:outline hover:outline-orange-500";
@@ -104,9 +102,7 @@ function App() {
   };
 
   const handleRestart = async () => {
-    alert("Are you sure?");
     setGameOver(false);
-
     const game = await postRequest<Game>("/reset", { id: gameId });
     updateBoard(game);
     setHasStarted(false);
