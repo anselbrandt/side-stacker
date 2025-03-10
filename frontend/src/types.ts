@@ -28,3 +28,8 @@ export interface User {
 }
 
 export type Position = [number, number];
+
+export interface OnlineUser {
+  id: number;
+  name: string;
+}
