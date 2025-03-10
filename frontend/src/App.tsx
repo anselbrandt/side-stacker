@@ -29,6 +29,7 @@ function App() {
   const [online, setOnline] = useState<OnlineUser[]>();
   const [gameRequest, setGameRequest] = useState<OnlineUser>();
   const [remotePlayer, setRemotePlayer] = useState<OnlineUser>();
+  const [turn, setTurn] = useState<PlayerSymbol>("X");
 
   const ws = useRef<WebSocket>(null);
 
@@ -73,31 +74,31 @@ function App() {
       const payload = {
         ...cell.coordinates,
         id: gameId,
-        player,
+        player: turn,
       };
       const game = await postRequest<Game>("/move", payload);
       const board = updateBoard(game);
-      if (isWinningMove(board, player)) {
+      if (isWinningMove(board, turn)) {
         setGameOver(true);
         setTimeout(() => {
-          if (player === "X") {
-            alert("Youn win!");
+          if (turn === player) {
+            alert("You win!");
           } else {
-            alert("Computer wins.");
-            setPlayer((prev) => (prev === "X" ? "O" : "X"));
+            alert(`${remotePlayer ? remotePlayer.name : "Computer"} wins.`);
+            setTurn((prev) => (prev === "X" ? "O" : "X"));
             setHasStarted(false);
           }
         }, 500);
         return;
       } else {
-        setPlayer((prev) => (prev === "X" ? "O" : "X"));
+        setTurn((prev) => (prev === "X" ? "O" : "X"));
       }
     },
-    [gameBoard, gameOver, validMoves, gameId, player, updateBoard]
+    [gameBoard, gameOver, validMoves, gameId, turn, updateBoard]
   );
 
   const handleHumanMove = (cell: Cell) => {
-    if (player === "O") return;
+    if (turn !== player) return;
     handleMove(cell);
   };
 
@@ -120,14 +121,14 @@ function App() {
 
   useEffect(() => {
     const autoMove = async () => {
-      if (!hasStarted || player === "X" || !validMoves || !gameBoard) return;
+      if (!hasStarted || turn === player || !validMoves || !gameBoard) return;
       setTimeout(() => {
         const move = gameEngine(gameBoard);
         handleMove(move);
       }, 1000);
     };
     autoMove();
-  }, [player, gameBoard, handleMove, hasStarted, validMoves]);
+  }, [player, gameBoard, handleMove, hasStarted, validMoves, turn]);
 
   useEffect(() => {
     const connect = () => {
@@ -155,6 +156,12 @@ function App() {
         }
         if (data.invite) {
           setGameRequest(data.invite);
+        }
+        if (data.player) {
+          setPlayer(data.player);
+        }
+        if (data.move) {
+          handleMove(data.move);
         }
       });
     };
