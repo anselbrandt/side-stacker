@@ -4,17 +4,19 @@ import { gameEngine } from "./game/gameEngine";
 import { getRequest, postRequest } from "./utils";
 import { getValidMoves, isValid, isWinningMove } from "./game/gameLogic";
 import {
-  User,
   Cell,
-  Game,
-  PlayerSymbol,
   EnhancedBoard,
+  Game,
   OnlineUser,
+  PlayerSymbol,
+  User,
 } from "./types";
-import { useState, useEffect, useCallback, useRef } from "react";
 import { Controls } from "./components/Controls";
+import { Greeting } from "./components/Greeting";
 import { OnlineUsers } from "./components/OnlineUsers";
 import { PlayingBoard } from "./components/PlayingBoard";
+import { Title } from "./components/Title";
+import { useState, useEffect, useCallback, useRef } from "react";
 
 function App() {
   const [user, setUser] = useState<User>();
@@ -185,17 +187,14 @@ function App() {
     setGameRequest(undefined);
   };
 
+  const handleQuit = () => {
+    setRemotePlayer(undefined);
+  };
+
   return (
     <div className="min-h-screen bg-zinc-100 flex flex-col items-center justify-center">
-      <div className="mt-10 text-4xl [word-spacing: 2px] font-mono font-bold text-slate-500">
-        Side Stacker
-      </div>
-      <div className="text-md font-mono font-medium text-slate-500">
-        Connect Four, but sideways.
-      </div>
-      <div className="m-2 my-8 text-2xl font-mono tracking-tight font-medium text-slate-500">
-        Hi, {user?.name}!
-      </div>
+      <Title />
+      <Greeting user={user} />
       <PlayingBoard
         gameBoard={gameBoard}
         handleHumanMove={handleHumanMove}
@@ -206,12 +205,13 @@ function App() {
         <div className="flex flex-row">
           <OnlineUsers online={online} />
           <Controls
-            handleRestart={handleRestart}
             gameRequest={gameRequest}
             handleAccept={handleAccept}
             handleIgnore={handleIgnore}
-            remotePlayer={remotePlayer}
             handleInvite={handleInvite}
+            handleRestart={handleRestart}
+            remotePlayer={remotePlayer}
+            handleQuit={handleQuit}
           />
         </div>
       </div>

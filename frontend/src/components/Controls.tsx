@@ -8,6 +8,7 @@ interface Props {
   handleIgnore: () => void;
   remotePlayer?: OnlineUser;
   handleInvite: () => void;
+  handleQuit: () => void;
 }
 
 export const Controls: React.FC<Props> = ({
@@ -17,15 +18,18 @@ export const Controls: React.FC<Props> = ({
   handleIgnore,
   remotePlayer,
   handleInvite,
+  handleQuit,
 }) => {
   return (
     <div className="flex flex-col">
-      <button
-        className="m-2 bg-sky-700 text-slate-100 text-xs font-mono hover:bg-sky-600 hover:text-white font-bold py-2 px-4 drop-shadow-md rounded"
-        onClick={handleRestart}
-      >
-        Restart
-      </button>
+      {!gameRequest ? (
+        <button
+          className="m-2 bg-sky-700 text-slate-100 text-xs font-mono hover:bg-sky-600 hover:text-white font-bold py-2 px-4 drop-shadow-md rounded"
+          onClick={handleRestart}
+        >
+          Restart
+        </button>
+      ) : null}
       {gameRequest ? (
         <>
           <div className="ml-2 w-35 font-mono text-xs">
@@ -45,9 +49,17 @@ export const Controls: React.FC<Props> = ({
           </button>
         </>
       ) : remotePlayer ? (
-        <div className="ml-2 w-35 font-mono text-xs">
-          Currently playing {remotePlayer.name}
-        </div>
+        <>
+          <div className="ml-2 w-35 font-mono text-xs">
+            Currently playing {remotePlayer.name}
+          </div>
+          <button
+            className="m-2 bg-sky-700 text-slate-100 text-xs font-mono hover:bg-sky-600 hover:text-white font-bold py-2 px-4 drop-shadow-md rounded"
+            onClick={handleQuit}
+          >
+            Quit
+          </button>
+        </>
       ) : (
         <button
           className="m-2 bg-sky-700 text-slate-100 text-xs font-mono hover:bg-sky-600 hover:text-white font-bold py-2 px-4 drop-shadow-md rounded"
