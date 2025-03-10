@@ -31,19 +31,6 @@ function App() {
   const [turn, setTurn] = useState<PlayerSymbol>("X");
   const [isAvailable, setIsAvailable] = useState(true);
 
-  const ws = useRef<WebSocket>(null);
-
-  useEffect(() => {
-    async function login() {
-      const handleLogin = async () => {
-        const user = await getRequest<User>("/login");
-        setUser(user);
-      };
-      await handleLogin();
-    }
-    login();
-  }, []);
-
   const updateBoard = useCallback((game: Game) => {
     setGameId(game.id);
     const board = enhancedBoard(game.board);
@@ -52,18 +39,6 @@ function App() {
     setValidMoves(valid);
     return board;
   }, []);
-
-  useEffect(() => {
-    async function getGame() {
-      const handleGetGame = async () => {
-        if (!user) return;
-        const game = await getRequest<Game>("/board");
-        updateBoard(game);
-      };
-      await handleGetGame();
-    }
-    getGame();
-  }, [user, updateBoard]);
 
   const handleMove = useCallback(
     async (cell: Cell) => {
@@ -94,41 +69,47 @@ function App() {
         setTurn((prev) => (prev === "X" ? "O" : "X"));
       }
     },
-    [gameBoard, gameOver, validMoves, gameId, turn, updateBoard]
+    [
+      gameBoard,
+      gameOver,
+      validMoves,
+      gameId,
+      turn,
+      updateBoard,
+      player,
+      remotePlayer,
+    ]
   );
 
-  const handleHumanMove = (cell: Cell) => {
-    if (turn !== player) return;
-    handleMove(cell);
-  };
-
-  const cellStyle = (cell: Cell) => {
-    if (cell.symbol !== null) return "bg-white";
-    const { i, j } = cell.coordinates;
-    if (validMoves && isValid(validMoves, [i, j])) {
-      return "bg-white hover:cursor-pointer hover:outline hover:outline-orange-500";
-    } else {
-      return "bg-zinc-100";
-    }
-  };
-
-  const handleRestart = async () => {
-    setGameOver(false);
-    const game = await postRequest<Game>("/reset", { id: gameId });
-    updateBoard(game);
-    setHasStarted(false);
-  };
+  const ws = useRef<WebSocket>(null);
+  const handleMoveRef = useRef(handleMove);
 
   useEffect(() => {
-    const autoMove = async () => {
-      if (!hasStarted || turn === player || !validMoves || !gameBoard) return;
-      setTimeout(() => {
-        const move = gameEngine(gameBoard);
-        handleMove(move);
-      }, 1000);
-    };
-    autoMove();
-  }, [player, gameBoard, handleMove, hasStarted, validMoves, turn]);
+    async function login() {
+      const handleLogin = async () => {
+        const user = await getRequest<User>("/login");
+        setUser(user);
+      };
+      await handleLogin();
+    }
+    login();
+  }, []);
+
+  useEffect(() => {
+    async function getGame() {
+      const handleGetGame = async () => {
+        if (!user) return;
+        const game = await getRequest<Game>("/board");
+        updateBoard(game);
+      };
+      await handleGetGame();
+    }
+    getGame();
+  }, [user, updateBoard]);
+
+  useEffect(() => {
+    handleMoveRef.current = handleMove;
+  }, [handleMove]);
 
   useEffect(() => {
     const connect = () => {
@@ -161,7 +142,7 @@ function App() {
           setPlayer(data.player);
         }
         if (data.move) {
-          handleMove(data.move);
+          handleMoveRef.current(data.move);
         }
       });
     };
@@ -172,6 +153,39 @@ function App() {
       ws.current?.close();
     };
   }, [user]);
+
+  useEffect(() => {
+    const autoMove = async () => {
+      if (!hasStarted || turn === player || !validMoves || !gameBoard) return;
+      setTimeout(() => {
+        const move = gameEngine(gameBoard);
+        handleMove(move);
+      }, 1000);
+    };
+    autoMove();
+  }, [player, gameBoard, handleMove, hasStarted, validMoves, turn]);
+
+  const handleHumanMove = (cell: Cell) => {
+    if (turn !== player) return;
+    handleMove(cell);
+  };
+
+  const cellStyle = (cell: Cell) => {
+    if (cell.symbol !== null) return "bg-white";
+    const { i, j } = cell.coordinates;
+    if (validMoves && isValid(validMoves, [i, j])) {
+      return "bg-white hover:cursor-pointer hover:outline hover:outline-orange-500";
+    } else {
+      return "bg-zinc-100";
+    }
+  };
+
+  const handleRestart = async () => {
+    setGameOver(false);
+    const game = await postRequest<Game>("/reset", { id: gameId });
+    updateBoard(game);
+    setHasStarted(false);
+  };
 
   const handleInvite = () => {
     if (!ws.current || !online![0].available) return;
