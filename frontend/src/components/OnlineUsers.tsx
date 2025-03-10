@@ -15,16 +15,16 @@ export const OnlineUsers: React.FC<Props> = ({ online, user }) => {
           <div className="font-mono text-sm" />
           (You)
         </div>
-        {online?.map((user, index) => (
+        {online?.map((onlineUser, index) => (
           <div
             key={index}
             className="m-2 flex flex-row justify-between items-center"
           >
-            <div className="font-mono text-sm">{user.name}</div>
+            <div className="font-mono text-sm">{onlineUser.name}</div>
             <div
-              className={`mr-3 w-3 h-3 rounded-full bg-${
-                user.available ? "green" : "red"
-              }-500`}
+              className={`mr-3 w-3 h-3 rounded-full ${
+                onlineUser.available ? "bg-green-500" : "bg-red-500"
+              }`}
             />
           </div>
         ))}

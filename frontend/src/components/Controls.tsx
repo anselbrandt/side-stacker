@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { OnlineUser } from "../types";
 import { Toggle } from "./Toggle";
 
@@ -10,6 +10,8 @@ interface Props {
   remotePlayer?: OnlineUser;
   handleInvite: () => void;
   handleQuit: () => void;
+  isAvailable: boolean;
+  handleSetIsAvailable: () => void;
 }
 
 export const Controls: React.FC<Props> = ({
@@ -20,8 +22,9 @@ export const Controls: React.FC<Props> = ({
   remotePlayer,
   handleInvite,
   handleQuit,
+  isAvailable,
+  handleSetIsAvailable,
 }) => {
-  const [isChecked, setIsChecked] = useState(false);
   return (
     <div className="flex flex-col">
       {!gameRequest ? (
@@ -71,13 +74,8 @@ export const Controls: React.FC<Props> = ({
         </button>
       )}
       <div className="m-2 flex flex-col items-center justify-center">
-        <Toggle
-          isChecked={isChecked}
-          handleChange={() => setIsChecked((prev) => !prev)}
-        />
-        <div className="m-2 text-sm font-mono text-slate-500">
-          Ignore invites
-        </div>
+        <Toggle isChecked={isAvailable} handleChange={handleSetIsAvailable} />
+        <div className="m-2 text-sm font-mono text-slate-500">Available</div>
       </div>
     </div>
   );

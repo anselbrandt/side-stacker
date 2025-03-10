@@ -29,6 +29,7 @@ function App() {
   const [gameRequest, setGameRequest] = useState<OnlineUser>();
   const [remotePlayer, setRemotePlayer] = useState<OnlineUser>();
   const [turn, setTurn] = useState<PlayerSymbol>("X");
+  const [isAvailable, setIsAvailable] = useState(true);
 
   const ws = useRef<WebSocket>(null);
 
@@ -93,7 +94,16 @@ function App() {
         setTurn((prev) => (prev === "X" ? "O" : "X"));
       }
     },
-    [gameBoard, gameOver, validMoves, gameId, turn, updateBoard]
+    [
+      gameBoard,
+      gameOver,
+      validMoves,
+      gameId,
+      turn,
+      updateBoard,
+      player,
+      remotePlayer,
+    ]
   );
 
   const handleHumanMove = (cell: Cell) => {
@@ -142,7 +152,7 @@ function App() {
       const socket = ws.current;
 
       socket.addEventListener("open", () => {
-        socket.send(JSON.stringify({ message: `Hello from ${user.name}` }));
+        socket.send(JSON.stringify({ available: true }));
       });
 
       socket.addEventListener("message", (event) => {
@@ -170,10 +180,10 @@ function App() {
     return () => {
       ws.current?.close();
     };
-  }, [user]);
+  }, [user, handleMove]);
 
   const handleInvite = () => {
-    if (!ws.current) return;
+    if (!ws.current || !online![0].available) return;
     const socket = ws.current;
     const invitee = online![0].id;
     socket.send(JSON.stringify({ invite: invitee }));
@@ -197,6 +207,13 @@ function App() {
     setRemotePlayer(undefined);
   };
 
+  const handleSetIsAvailable = () => {
+    if (!ws.current) return;
+    const socket = ws.current;
+    socket.send(JSON.stringify({ available: !isAvailable }));
+    setIsAvailable((prev) => !prev);
+  };
+
   return (
     <div className="min-h-screen bg-zinc-100 flex flex-col items-center justify-center">
       <Title />
@@ -217,6 +234,8 @@ function App() {
             handleRestart={handleRestart}
             remotePlayer={remotePlayer}
             handleQuit={handleQuit}
+            isAvailable={isAvailable}
+            handleSetIsAvailable={handleSetIsAvailable}
           />
         </div>
       </div>

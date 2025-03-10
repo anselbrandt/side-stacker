@@ -214,6 +214,11 @@ class ConnectionManager:
         ][0]
         return user
 
+    def update_availability(self, id: int, available: bool):
+        websocket = self.ids.get(id)
+        if websocket and websocket in self.users:
+            self.users[websocket]["available"] = available
+
 
 manager = ConnectionManager()
 
@@ -248,6 +253,13 @@ async def websocket_endpoint(
                     data={"invite": {"id": requester_id, "name": requester_name}},
                     id=data["invite"],
                 )
+            if "available" in data:
+                status = data["available"]
+                print(requester_name, " is available ", status)
+                manager.update_availability(requester_id, status)
+                users = manager.get_users()
+                print(users)
+                await manager.broadcast(data={"online": users})
 
     except WebSocketDisconnect:
         user = manager.disconnect(websocket)
