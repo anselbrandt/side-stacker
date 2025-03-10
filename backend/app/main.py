@@ -169,16 +169,20 @@ class ConnectionManager:
     def __init__(self):
         self.active_connections: list[WebSocket] = []
         self.users: dict[WebSocket, dict] = {}
+        self.ids: dict[int, WebSocket] = {}
 
     async def connect(self, websocket: WebSocket, user: User):
-        self.users[websocket] = user
-        await websocket.accept()
         self.active_connections.append(websocket)
+        self.users[websocket] = user
+        self.ids[id] = websocket
+        await websocket.accept()
 
     def disconnect(self, websocket: WebSocket):
         if websocket in self.active_connections:
             self.active_connections.remove(websocket)
             deleted_user = self.users[websocket]
+            id = deleted_user["id"]
+            del self.ids[id]
             del self.users[websocket]
             return deleted_user
 
@@ -194,6 +198,9 @@ class ConnectionManager:
             {"id": user["id"], "name": user["name"]} for user in self.users.values()
         ]
         return users
+
+    def connection_by_id(self, id):
+        return self.ids[id]
 
 
 manager = ConnectionManager()
@@ -221,12 +228,10 @@ async def websocket_endpoint(
     try:
         while True:
             data = await websocket.receive_json()
-            user_name = manager.users.get(websocket)["name"]
-            await manager.send(
-                data={"message": f'Your message was: "{data["message"]}"'},
-                websocket=websocket,
-            )
-            await manager.broadcast(data={"joined": user_name})
+            if "id" in data:
+                connection = manager.connection_by_id(id)
+                await connection.send_json(data={"message": "found all the ids"})
+
     except WebSocketDisconnect:
         user = manager.disconnect(websocket)
         user_name = user["name"]

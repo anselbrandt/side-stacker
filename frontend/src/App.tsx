@@ -5,6 +5,11 @@ import { User, Cell, Game, PlayerSymbol, EnhancedBoard } from "./types";
 import { enhancedBoard, getRequest, postRequest } from "./utils";
 import { gameEngine } from "./gameEngine";
 
+interface OnlineUser {
+  id: number;
+  name: string;
+}
+
 function App() {
   const [user, setUser] = useState<User>();
   const [gameId, setGameId] = useState<number>();
@@ -13,6 +18,7 @@ function App() {
   const [validMoves, setValidMoves] = useState<[number, number][]>();
   const [gameOver, setGameOver] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);
+  const [online, setOnline] = useState<OnlineUser[]>();
 
   const ws = useRef<WebSocket>(null);
 
@@ -140,7 +146,14 @@ function App() {
       });
 
       socket.addEventListener("message", (event) => {
-        console.log(JSON.parse(event.data));
+        const data = JSON.parse(event.data);
+        console.log(data);
+        if (data.online) {
+          const filteredUsers = data.online.filter(
+            (online: OnlineUser) => online.name !== user.name
+          );
+          setOnline(filteredUsers);
+        }
       });
     };
 
@@ -150,6 +163,12 @@ function App() {
       ws.current?.close();
     };
   }, [user]);
+
+  const handleSendMessage = () => {
+    if (!ws.current) return;
+    const socket = ws.current;
+    socket.send(JSON.stringify({ message: "Forward this message.", id: 1 }));
+  };
 
   return (
     <>
@@ -182,13 +201,32 @@ function App() {
             ))}
           </div>
         </div>
-        <div className="flex flex-col">
-          <div>
+        <div className="flex flex-row">
+          <div className="m-2 h-40 w-40 bg-white overflow-auto drop-shadow-md rounded-md">
+            <div className="min-h-50">
+              {online?.map((user, index) => (
+                <div className="m-1" key={index}>
+                  {user.id} {user.name}
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="flex flex-col">
             <button
-              className="m-2 bg-sky-700 text-slate-100 font-mono hover:bg-sky-600 hover:text-white font-bold py-2 px-4 rounded"
+              className="m-2 bg-sky-700 text-slate-100 font-mono hover:bg-sky-600 hover:text-white font-bold py-2 px-4 drop-shadow-md rounded"
               onClick={handleRestart}
             >
               Restart
+            </button>
+            <button className="m-2 bg-sky-700 text-slate-100 font-mono hover:bg-sky-600 hover:text-white font-bold py-2 px-4 drop-shadow-md rounded">
+              Invite to Play
+            </button>
+
+            <button
+              className="m-2 bg-sky-700 text-slate-100 font-mono hover:bg-sky-600 hover:text-white font-bold py-2 px-4 drop-shadow-md rounded"
+              onClick={handleSendMessage}
+            >
+              Send Message
             </button>
           </div>
         </div>
