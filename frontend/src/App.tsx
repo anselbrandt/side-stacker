@@ -94,16 +94,7 @@ function App() {
         setTurn((prev) => (prev === "X" ? "O" : "X"));
       }
     },
-    [
-      gameBoard,
-      gameOver,
-      validMoves,
-      gameId,
-      turn,
-      updateBoard,
-      player,
-      remotePlayer,
-    ]
+    [gameBoard, gameOver, validMoves, gameId, turn, updateBoard]
   );
 
   const handleHumanMove = (cell: Cell) => {
@@ -180,7 +171,7 @@ function App() {
     return () => {
       ws.current?.close();
     };
-  }, [user, handleMove]);
+  }, [user]);
 
   const handleInvite = () => {
     if (!ws.current || !online![0].available) return;
@@ -209,8 +200,7 @@ function App() {
 
   const handleSetIsAvailable = () => {
     if (!ws.current) return;
-    const socket = ws.current;
-    socket.send(JSON.stringify({ available: !isAvailable }));
+    ws.current.send(JSON.stringify({ available: !isAvailable }));
     setIsAvailable((prev) => !prev);
   };
 

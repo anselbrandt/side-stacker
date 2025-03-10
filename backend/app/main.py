@@ -255,16 +255,16 @@ async def websocket_endpoint(
                 )
             if "available" in data:
                 status = data["available"]
-                print(requester_name, " is available ", status)
                 manager.update_availability(requester_id, status)
                 users = manager.get_users()
-                print(users)
                 await manager.broadcast(data={"online": users})
 
     except WebSocketDisconnect:
         user = manager.disconnect(websocket)
         user_name = user["name"]
         await manager.broadcast(data={"left": user_name})
+        users = manager.get_users()
+        await manager.broadcast(data={"online": users})
 
 
 app.mount("/", StaticFiles(directory="../dist", html=True), name="dist")
