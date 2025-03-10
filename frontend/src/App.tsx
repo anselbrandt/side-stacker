@@ -19,7 +19,8 @@ function App() {
   const [gameOver, setGameOver] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);
   const [online, setOnline] = useState<OnlineUser[]>();
-  const [invite, setInvite] = useState<string>();
+  const [requestMessage, setRequestMessage] = useState<string>();
+  const [gameRequest, setGameRequest] = useState<OnlineUser>();
   const [remotePlayer, setRemotePlayer] = useState<OnlineUser>();
 
   const ws = useRef<WebSocket>(null);
@@ -156,12 +157,12 @@ function App() {
           setOnline(filteredUsers);
         }
         if (data.invite) {
-          setInvite(data.invite);
+          setRequestMessage(data.invite);
           const invitee: OnlineUser = {
             id: data.id,
             name: data.name,
           };
-          setRemotePlayer(invitee);
+          setGameRequest(invitee);
         }
       });
     };
@@ -181,9 +182,10 @@ function App() {
   };
 
   useEffect(() => {
-    if (!invite) return;
-    alert(invite);
-  }, [invite]);
+    if (!requestMessage) return;
+    alert(requestMessage);
+    setRequestMessage(undefined);
+  }, [requestMessage]);
 
   return (
     <>
