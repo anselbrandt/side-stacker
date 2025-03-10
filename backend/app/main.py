@@ -205,6 +205,14 @@ class ConnectionManager:
         ]
         return users
 
+    def get_user(self, id: int):
+        user = [
+            {"id": user["id"], "name": user["name"]}
+            for user in self.users.values()
+            if user["id"] == id
+        ][0]
+        return user
+
 
 manager = ConnectionManager()
 
@@ -227,14 +235,18 @@ async def websocket_endpoint(
     await manager.connect(websocket, user)
     users = manager.get_users()
     await manager.broadcast(data={"online": users})
-
+    sender_name = user["name"]
     try:
         while True:
             data = await websocket.receive_json()
             if "id" in data:
-
+                user = manager.get_user(data["id"])
+                user_name = user["name"]
                 await manager.send_by_id(
-                    data={"message": "Found the id"}, id=data["id"]
+                    data={
+                        "invite": f"Hey {user_name}, {sender_name} has invited you to play."
+                    },
+                    id=data["id"],
                 )
 
     except WebSocketDisconnect:
