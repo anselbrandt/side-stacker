@@ -174,20 +174,26 @@ class ConnectionManager:
     async def connect(self, websocket: WebSocket, user: User):
         self.active_connections.append(websocket)
         self.users[websocket] = user
-        self.ids[id] = websocket
+        self.ids[user["id"]] = websocket
         await websocket.accept()
 
     def disconnect(self, websocket: WebSocket):
         if websocket in self.active_connections:
             self.active_connections.remove(websocket)
-            deleted_user = self.users[websocket]
-            id = deleted_user["id"]
-            del self.ids[id]
-            del self.users[websocket]
+            deleted_user = self.users.pop(websocket)
+            user_id = deleted_user["id"]
+            self.ids.pop(user_id, None)
             return deleted_user
 
     async def send(self, data, websocket: WebSocket):
         await websocket.send_json(data=data)
+
+    async def send_by_id(self, data, id: int):
+        websocket = self.ids.get(id)
+        if websocket:
+            await websocket.send_json(data=data)
+        else:
+            raise WebSocketException(code=status.WS_1008_POLICY_VIOLATION)
 
     async def broadcast(self, data):
         for connection in self.active_connections:
@@ -198,9 +204,6 @@ class ConnectionManager:
             {"id": user["id"], "name": user["name"]} for user in self.users.values()
         ]
         return users
-
-    def connection_by_id(self, id):
-        return self.ids[id]
 
 
 manager = ConnectionManager()
@@ -229,8 +232,10 @@ async def websocket_endpoint(
         while True:
             data = await websocket.receive_json()
             if "id" in data:
-                connection = manager.connection_by_id(id)
-                await connection.send_json(data={"message": "found all the ids"})
+
+                await manager.send_by_id(
+                    data={"message": "Found the id"}, id=data["id"]
+                )
 
     except WebSocketDisconnect:
         user = manager.disconnect(websocket)
