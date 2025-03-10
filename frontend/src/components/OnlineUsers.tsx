@@ -10,8 +10,16 @@ export const OnlineUsers: React.FC<Props> = ({ online }) => {
     <div className="m-2 h-40 w-50 bg-white overflow-auto drop-shadow-md rounded-md">
       <div className="min-h-50">
         {online?.map((user, index) => (
-          <div className="m-2 font-mono text-sm" key={index}>
-            {user.name}
+          <div
+            key={index}
+            className="m-2 flex flex-row justify-between items-center"
+          >
+            <div className="font-mono text-sm">{user.name}</div>
+            <div
+              className={`w-3 h-3 rounded-full bg-${
+                user.available ? "green" : "red"
+              }-500`}
+            />
           </div>
         ))}
       </div>

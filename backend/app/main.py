@@ -173,7 +173,7 @@ class ConnectionManager:
 
     async def connect(self, websocket: WebSocket, user: User):
         self.active_connections.append(websocket)
-        self.users[websocket] = user
+        self.users[websocket] = {**user, "available": True}
         self.ids[user["id"]] = websocket
         await websocket.accept()
 
@@ -201,13 +201,14 @@ class ConnectionManager:
 
     def get_users(self):
         users = [
-            {"id": user["id"], "name": user["name"]} for user in self.users.values()
+            {"id": user["id"], "name": user["name"], "available": user["available"]}
+            for user in self.users.values()
         ]
         return users
 
     def get_user(self, id: int):
         user = [
-            {"id": user["id"], "name": user["name"]}
+            {"id": user["id"], "name": user["name"], "available": user["available"]}
             for user in self.users.values()
             if user["id"] == id
         ][0]
