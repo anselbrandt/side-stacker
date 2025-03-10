@@ -13,6 +13,7 @@ import {
 } from "./types";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Controls } from "./components/Controls";
+import { OnlineUsers } from "./components/OnlineUsers";
 
 function App() {
   const [user, setUser] = useState<User>();
@@ -226,15 +227,7 @@ function App() {
       <div>
         <div className="m-1 ml-3 mt-3  text-sm font-mono">Online users:</div>
         <div className="flex flex-row">
-          <div className="m-2 h-40 w-50 bg-white overflow-auto drop-shadow-md rounded-md">
-            <div className="min-h-50">
-              {online?.map((user, index) => (
-                <div className="m-2 font-mono text-sm" key={index}>
-                  {user.name}
-                </div>
-              ))}
-            </div>
-          </div>
+          <OnlineUsers online={online} />
           <Controls
             handleRestart={handleRestart}
             gameRequest={gameRequest}
