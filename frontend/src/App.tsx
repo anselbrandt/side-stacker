@@ -164,23 +164,24 @@ function App() {
     };
   }, [user]);
 
-  const handleSendMessage = () => {
+  const handleInvite = () => {
     if (!ws.current) return;
     const socket = ws.current;
-    socket.send(JSON.stringify({ invite: 1 }));
+    const invitee = online![0].id;
+    socket.send(JSON.stringify({ invite: invitee }));
   };
 
   return (
     <>
       <div className="min-h-screen bg-zinc-100 flex flex-col items-center justify-center">
-        <div className="text-4xl [word-spacing: 2px] font-mono font-bold text-slate-500">
+        <div className="mt-10 text-4xl [word-spacing: 2px] font-mono font-bold text-slate-500">
           Side Stacker
         </div>
         <div className="text-md font-mono font-medium text-slate-500">
           Connect Four, but sideways.
         </div>
         <div className="m-2 my-8 text-2xl font-mono tracking-tight font-medium text-slate-500">
-          Hello, {user?.name}!
+          Hi, {user?.name}!
         </div>
         <div className="m-2">
           <div className="grid grid-cols-7 gap-2">
@@ -201,33 +202,32 @@ function App() {
             ))}
           </div>
         </div>
-        <div className="flex flex-row">
-          <div className="m-2 h-40 w-40 bg-white overflow-auto drop-shadow-md rounded-md">
-            <div className="min-h-50">
-              {online?.map((user, index) => (
-                <div className="m-1" key={index}>
-                  {user.id} {user.name}
-                </div>
-              ))}
+        <div>
+          <div className="m-1 ml-3 mt-3  text-sm font-mono">Online users:</div>
+          <div className="flex flex-row">
+            <div className="m-2 h-40 w-50 bg-white overflow-auto drop-shadow-md rounded-md">
+              <div className="min-h-50">
+                {online?.map((user, index) => (
+                  <div className="m-2 font-mono text-sm" key={index}>
+                    {user.name}
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-          <div className="flex flex-col">
-            <button
-              className="m-2 bg-sky-700 text-slate-100 font-mono hover:bg-sky-600 hover:text-white font-bold py-2 px-4 drop-shadow-md rounded"
-              onClick={handleRestart}
-            >
-              Restart
-            </button>
-            <button className="m-2 bg-sky-700 text-slate-100 font-mono hover:bg-sky-600 hover:text-white font-bold py-2 px-4 drop-shadow-md rounded">
-              Invite to Play
-            </button>
-
-            <button
-              className="m-2 bg-sky-700 text-slate-100 font-mono hover:bg-sky-600 hover:text-white font-bold py-2 px-4 drop-shadow-md rounded"
-              onClick={handleSendMessage}
-            >
-              Send Message
-            </button>
+            <div className="flex flex-col">
+              <button
+                className="m-2 bg-sky-700 text-slate-100 text-xs font-mono hover:bg-sky-600 hover:text-white font-bold py-2 px-4 drop-shadow-md rounded"
+                onClick={handleRestart}
+              >
+                Restart
+              </button>
+              <button
+                className="m-2 bg-sky-700 text-slate-100 text-xs font-mono hover:bg-sky-600 hover:text-white font-bold py-2 px-4 drop-shadow-md rounded"
+                onClick={handleInvite}
+              >
+                Invite to Play
+              </button>
+            </div>
           </div>
         </div>
       </div>
