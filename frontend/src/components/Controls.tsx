@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import { OnlineUser } from "../types";
+import { Toggle } from "./Toggle";
 
 interface Props {
   handleRestart: () => void;
@@ -20,6 +21,7 @@ export const Controls: React.FC<Props> = ({
   handleInvite,
   handleQuit,
 }) => {
+  const [isChecked, setIsChecked] = useState(false);
   return (
     <div className="flex flex-col">
       {!gameRequest ? (
@@ -68,6 +70,15 @@ export const Controls: React.FC<Props> = ({
           Invite to Play
         </button>
       )}
+      <div className="m-2 flex flex-col items-center justify-center">
+        <Toggle
+          isChecked={isChecked}
+          handleChange={() => setIsChecked((prev) => !prev)}
+        />
+        <div className="m-2 text-sm font-mono text-slate-500">
+          Ignore invites
+        </div>
+      </div>
     </div>
   );
 };
