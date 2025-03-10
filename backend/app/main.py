@@ -235,7 +235,8 @@ async def websocket_endpoint(
     await manager.connect(websocket, user)
     users = manager.get_users()
     await manager.broadcast(data={"online": users})
-    sender_name = user["name"]
+    requester_id = user["id"]
+    requester_name = user["name"]
     try:
         while True:
             data = await websocket.receive_json()
@@ -243,9 +244,7 @@ async def websocket_endpoint(
                 user = manager.get_user(data["invite"])
                 user_name = user["name"]
                 await manager.send_by_id(
-                    data={
-                        "invite": f"Hey {user_name}, {sender_name} has invited you to play."
-                    },
+                    data={"invite": {"id": requester_id, "name": requester_name}},
                     id=data["invite"],
                 )
 
