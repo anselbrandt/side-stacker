@@ -14,6 +14,7 @@ import {
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Controls } from "./components/Controls";
 import { OnlineUsers } from "./components/OnlineUsers";
+import { PlayingBoard } from "./components/PlayingBoard";
 
 function App() {
   const [user, setUser] = useState<User>();
@@ -108,16 +109,6 @@ function App() {
     }
   };
 
-  const symbolColor = (symbol: PlayerSymbol) => {
-    if (symbol === "X") {
-      return "bg-sky-700";
-    }
-    if (symbol === "O") {
-      return "bg-orange-500";
-    }
-    return "";
-  };
-
   const handleRestart = async () => {
     setGameOver(false);
     const game = await postRequest<Game>("/reset", { id: gameId });
@@ -205,25 +196,11 @@ function App() {
       <div className="m-2 my-8 text-2xl font-mono tracking-tight font-medium text-slate-500">
         Hi, {user?.name}!
       </div>
-      <div className="m-2">
-        <div className="grid grid-cols-7 gap-2">
-          {gameBoard?.flat().map((cell, i) => (
-            <div
-              key={i}
-              className={`w-11 h-11 rounded-md drop-shadow-md flex items-center justify-center ${cellStyle(
-                cell
-              )}`}
-              onClick={() => handleHumanMove(cell)}
-            >
-              <div
-                className={`w-9 h-9 ${symbolColor(
-                  cell.symbol
-                )} rounded-full drop-shadow-lg`}
-              />
-            </div>
-          ))}
-        </div>
-      </div>
+      <PlayingBoard
+        gameBoard={gameBoard}
+        handleHumanMove={handleHumanMove}
+        cellStyle={cellStyle}
+      />
       <div>
         <div className="m-1 ml-3 mt-3  text-sm font-mono">Online users:</div>
         <div className="flex flex-row">
