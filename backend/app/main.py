@@ -189,6 +189,12 @@ class ConnectionManager:
         for connection in self.active_connections:
             await connection.send_json(data=data)
 
+    def get_users(self):
+        users = [
+            {"id": user["id"], "name": user["name"]} for user in self.users.values()
+        ]
+        return users
+
 
 manager = ConnectionManager()
 
@@ -209,6 +215,9 @@ async def websocket_endpoint(
     user: Annotated[User, Depends(get_user_from_token)],
 ):
     await manager.connect(websocket, user)
+    users = manager.get_users()
+    await manager.broadcast(data={"online": users})
+
     try:
         while True:
             data = await websocket.receive_json()
