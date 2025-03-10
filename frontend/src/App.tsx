@@ -12,7 +12,6 @@ import {
   User,
 } from "./types";
 import { Controls } from "./components/Controls";
-import { Greeting } from "./components/Greeting";
 import { OnlineUsers } from "./components/OnlineUsers";
 import { PlayingBoard } from "./components/PlayingBoard";
 import { Title } from "./components/Title";
@@ -201,7 +200,6 @@ function App() {
   return (
     <div className="min-h-screen bg-zinc-100 flex flex-col items-center justify-center">
       <Title />
-      <Greeting user={user} />
       <PlayingBoard
         gameBoard={gameBoard}
         handleHumanMove={handleHumanMove}
@@ -210,7 +208,7 @@ function App() {
       <div>
         <div className="m-1 ml-3 mt-3  text-sm font-mono">Online users:</div>
         <div className="flex flex-row">
-          <OnlineUsers online={online} />
+          <OnlineUsers online={online} user={user} />
           <Controls
             gameRequest={gameRequest}
             handleAccept={handleAccept}
