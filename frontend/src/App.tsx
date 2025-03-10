@@ -167,7 +167,7 @@ function App() {
   const handleSendMessage = () => {
     if (!ws.current) return;
     const socket = ws.current;
-    socket.send(JSON.stringify({ message: "Forward this message.", id: 1 }));
+    socket.send(JSON.stringify({ invite: 1 }));
   };
 
   return (

@@ -239,14 +239,14 @@ async def websocket_endpoint(
     try:
         while True:
             data = await websocket.receive_json()
-            if "id" in data:
-                user = manager.get_user(data["id"])
+            if "invite" in data:
+                user = manager.get_user(data["invite"])
                 user_name = user["name"]
                 await manager.send_by_id(
                     data={
                         "invite": f"Hey {user_name}, {sender_name} has invited you to play."
                     },
-                    id=data["id"],
+                    id=data["invite"],
                 )
 
     except WebSocketDisconnect:
