@@ -30,6 +30,7 @@ function App() {
   const [remotePlayer, setRemotePlayer] = useState<OnlineUser>();
   const [turn, setTurn] = useState<PlayerSymbol>("X");
   const [isAvailable, setIsAvailable] = useState(true);
+  const socketRef = useRef<WebSocket>(null);
 
   const updateBoard = useCallback((game: Game) => {
     setGameId(game.id);
@@ -81,9 +82,6 @@ function App() {
     ]
   );
 
-  const ws = useRef<WebSocket>(null);
-  const handleMoveRef = useRef(handleMove);
-
   useEffect(() => {
     async function login() {
       const handleLogin = async () => {
@@ -108,51 +106,53 @@ function App() {
   }, [user, updateBoard]);
 
   useEffect(() => {
-    handleMoveRef.current = handleMove;
-  }, [handleMove]);
-
-  useEffect(() => {
     const connect = () => {
       if (!user) return;
 
-      if (!ws.current) {
-        ws.current = new WebSocket(
+      if (!socketRef.current) {
+        socketRef.current = new WebSocket(
           `ws://localhost:8000/ws?token=${user?.token}`
         );
       }
 
-      const socket = ws.current;
+      const socket = socketRef.current;
 
       socket.addEventListener("open", () => {
         socket.send(JSON.stringify({ available: true }));
-      });
-
-      socket.addEventListener("message", (event) => {
-        const data = JSON.parse(event.data);
-        if (data.online) {
-          const filteredUsers = data.online.filter(
-            (online: OnlineUser) => online.name !== user.name
-          );
-          setOnline(filteredUsers);
-        }
-        if (data.invite) {
-          setGameRequest(data.invite);
-        }
-        if (data.player) {
-          setPlayer(data.player);
-        }
-        if (data.move) {
-          handleMoveRef.current(data.move);
-        }
       });
     };
 
     connect();
 
     return () => {
-      ws.current?.close();
+      socketRef.current?.close();
     };
   }, [user]);
+
+  useEffect(() => {
+    if (!socketRef.current || !user) return;
+
+    const socket = socketRef.current;
+
+    socket.addEventListener("message", (event) => {
+      const data = JSON.parse(event.data);
+      if (data.online) {
+        const filteredUsers = data.online.filter(
+          (online: OnlineUser) => online.name !== user?.name
+        );
+        setOnline(filteredUsers);
+      }
+      if (data.invite) {
+        setGameRequest(data.invite);
+      }
+      if (data.player) {
+        setPlayer(data.player);
+      }
+      if (data.move) {
+        handleMove(data.move);
+      }
+    });
+  }, [user, handleMove]);
 
   useEffect(() => {
     const autoMove = async () => {
@@ -188,8 +188,8 @@ function App() {
   };
 
   const handleInvite = () => {
-    if (!ws.current || !online![0].available) return;
-    const socket = ws.current;
+    if (!socketRef.current || !online![0].available) return;
+    const socket = socketRef.current;
     const invitee = online![0].id;
     socket.send(JSON.stringify({ invite: invitee }));
   };
@@ -213,8 +213,8 @@ function App() {
   };
 
   const handleSetIsAvailable = () => {
-    if (!ws.current) return;
-    ws.current.send(JSON.stringify({ available: !isAvailable }));
+    if (!socketRef.current) return;
+    socketRef.current.send(JSON.stringify({ available: !isAvailable }));
     setIsAvailable((prev) => !prev);
   };
 
