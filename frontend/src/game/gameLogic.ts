@@ -1,6 +1,6 @@
-import { BOARD_SIZE } from "./constants";
-import { PlayerSymbol, Board, Position, EnhancedBoard } from "./types";
-import { extractBoard } from "./utils";
+import { BOARD_SIZE } from "../constants";
+import { PlayerSymbol, Board, Position, EnhancedBoard } from "../types";
+import { extractBoard } from "./gameUtils";
 
 export const getValidMoves = (board: Board): [number, number][] => {
   return board.flatMap((row, i) => {

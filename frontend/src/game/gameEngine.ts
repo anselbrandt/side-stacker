@@ -1,5 +1,5 @@
-import { EnhancedBoard } from "./types";
-import { extractBoard } from "./utils";
+import { EnhancedBoard } from "../types";
+import { extractBoard } from "./gameUtils";
 import { getValidMoves } from "./gameLogic";
 
 export const gameEngine = (gameBoard: EnhancedBoard) => {

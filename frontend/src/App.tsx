@@ -1,9 +1,10 @@
-import { useState, useEffect, useCallback, useRef } from "react";
 import "./App.css";
-import { getValidMoves, isValid, isWinningMove } from "./gameLogic";
+import { enhancedBoard } from "./game/gameUtils";
+import { gameEngine } from "./game/gameEngine";
+import { getRequest, postRequest } from "./utils";
+import { getValidMoves, isValid, isWinningMove } from "./game/gameLogic";
 import { User, Cell, Game, PlayerSymbol, EnhancedBoard } from "./types";
-import { enhancedBoard, getRequest, postRequest } from "./utils";
-import { gameEngine } from "./gameEngine";
+import { useState, useEffect, useCallback, useRef } from "react";
 
 interface OnlineUser {
   id: number;
