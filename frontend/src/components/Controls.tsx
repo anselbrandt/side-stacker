@@ -12,6 +12,7 @@ interface Props {
   handleQuit: () => void;
   isAvailable: boolean;
   handleSetIsAvailable: () => void;
+  selectedUser?: OnlineUser;
 }
 
 export const Controls: React.FC<Props> = ({
@@ -24,12 +25,13 @@ export const Controls: React.FC<Props> = ({
   handleQuit,
   isAvailable,
   handleSetIsAvailable,
+  selectedUser,
 }) => {
   return (
     <div className="flex flex-col">
       {!gameRequest ? (
         <button
-          className="m-2 bg-sky-700 text-slate-100 text-xs font-mono hover:bg-sky-600 hover:text-white font-bold py-2 px-4 drop-shadow-md rounded"
+          className="m-2 bg-sky-700 text-slate-100 text-xs font-mono hover:bg-sky-600 hover:text-white hover:cursor-pointer font-bold py-2 px-4 drop-shadow-md rounded"
           onClick={handleRestart}
         >
           Restart
@@ -41,13 +43,13 @@ export const Controls: React.FC<Props> = ({
             {gameRequest.name} is inviting you to play
           </div>
           <button
-            className="m-2 bg-sky-700 text-slate-100 text-xs font-mono hover:bg-sky-600 hover:text-white font-bold py-2 px-4 drop-shadow-md rounded"
+            className="m-2 bg-sky-700 text-slate-100 text-xs font-mono hover:bg-sky-600 hover:text-white hover:cursor-pointer font-bold py-2 px-4 drop-shadow-md rounded"
             onClick={handleAccept}
           >
             Accept
           </button>
           <button
-            className="m-2 bg-sky-700 text-slate-100 text-xs font-mono hover:bg-sky-600 hover:text-white font-bold py-2 px-4 drop-shadow-md rounded"
+            className="m-2 bg-sky-700 text-slate-100 text-xs font-mono hover:bg-sky-600 hover:text-white hover:cursor-pointer font-bold py-2 px-4 drop-shadow-md rounded"
             onClick={handleIgnore}
           >
             Ignore
@@ -59,7 +61,7 @@ export const Controls: React.FC<Props> = ({
             Currently playing {remotePlayer.name}
           </div>
           <button
-            className="m-2 bg-sky-700 text-slate-100 text-xs font-mono hover:bg-sky-600 hover:text-white font-bold py-2 px-4 drop-shadow-md rounded"
+            className="m-2 bg-sky-700 text-slate-100 text-xs font-mono hover:bg-sky-600 hover:text-white hover:cursor-pointer font-bold py-2 px-4 drop-shadow-md rounded"
             onClick={handleQuit}
           >
             Quit
@@ -67,8 +69,13 @@ export const Controls: React.FC<Props> = ({
         </>
       ) : (
         <button
-          className="m-2 bg-sky-700 text-slate-100 text-xs font-mono hover:bg-sky-600 hover:text-white font-bold py-2 px-4 drop-shadow-md rounded"
+          className={`m-2  text-xs font-mono font-bold py-2 px-4 drop-shadow-md rounded ${
+            !selectedUser
+              ? "bg-zinc-300 text-white"
+              : "bg-sky-700 text-slate-100 hover:bg-sky-600 hover:text-white hover:cursor-pointer "
+          }`}
           onClick={handleInvite}
+          disabled={!selectedUser}
         >
           Invite to Play
         </button>

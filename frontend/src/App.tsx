@@ -30,6 +30,7 @@ function App() {
   const [remotePlayer, setRemotePlayer] = useState<OnlineUser>();
   const [turn, setTurn] = useState<PlayerSymbol>("X");
   const [isAvailable, setIsAvailable] = useState(true);
+  const [selectedUser, setSelectedUser] = useState<OnlineUser>();
   const socketRef = useRef<WebSocket>(null);
 
   const updateBoard = useCallback((game: Game) => {
@@ -188,9 +189,9 @@ function App() {
   };
 
   const handleInvite = () => {
-    if (!socketRef.current || !online![0].available) return;
+    if (!socketRef.current || !selectedUser) return;
     const socket = socketRef.current;
-    const invitee = online![0].id;
+    const invitee = selectedUser.id;
     socket.send(JSON.stringify({ invite: invitee }));
   };
 
@@ -229,7 +230,12 @@ function App() {
       <div>
         <div className="m-1 ml-3 mt-3  text-sm font-mono">Online users:</div>
         <div className="flex flex-row">
-          <OnlineUsers online={online} user={user} />
+          <OnlineUsers
+            online={online}
+            user={user}
+            selectedUser={selectedUser}
+            setSelectedUser={setSelectedUser}
+          />
           <Controls
             gameRequest={gameRequest}
             handleAccept={handleAccept}
@@ -240,6 +246,7 @@ function App() {
             handleQuit={handleQuit}
             isAvailable={isAvailable}
             handleSetIsAvailable={handleSetIsAvailable}
+            selectedUser={selectedUser}
           />
         </div>
       </div>
