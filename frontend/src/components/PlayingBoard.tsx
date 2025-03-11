@@ -1,4 +1,6 @@
 import React from "react";
+import { motion } from "motion/react";
+
 import { Cell, EnhancedBoard } from "../types";
 import { symbolColor } from "../utils";
 
@@ -24,11 +26,16 @@ export const PlayingBoard: React.FC<Props> = ({
             )}`}
             onClick={() => handleHumanMove(cell)}
           >
-            <div
-              className={`w-9 h-9 ${symbolColor(
-                cell.symbol
-              )} rounded-full drop-shadow-lg`}
-            />
+            {cell.symbol ? (
+              <motion.div
+                className={`w-9 h-9 ${symbolColor(
+                  cell.symbol
+                )} rounded-full drop-shadow-lg`}
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.0, duration: 0.5, ease: "backInOut" }}
+              />
+            ) : null}
           </div>
         ))}
       </div>

@@ -1,6 +1,4 @@
 import "./App.css";
-import { motion } from "motion/react";
-
 import { enhancedBoard } from "./game/gameUtils";
 import { gameEngine } from "./game/gameEngine";
 import { getRequest, postRequest } from "./utils";
@@ -18,6 +16,7 @@ import { OnlineUsers } from "./components/OnlineUsers";
 import { PlayingBoard } from "./components/PlayingBoard";
 import { Title } from "./components/Title";
 import { useState, useEffect, useCallback, useRef } from "react";
+import { TurnIndicator } from "./components/TurnIndicator";
 
 function App() {
   const [user, setUser] = useState<User>();
@@ -288,18 +287,7 @@ function App() {
   return (
     <div className="min-h-screen bg-zinc-100 flex flex-col items-center justify-center">
       <Title />
-      <motion.div
-        className="mb-2 text-orange-600 font-mono"
-        initial={{ scale: 0 }}
-        animate={{ scale: 1 }}
-        transition={{ delay: 0.5 }}
-      >
-        {turn === player
-          ? "Your turn."
-          : remotePlayer
-          ? `${remotePlayer.name} is playing.`
-          : "I'm thinking..."}
-      </motion.div>
+      <TurnIndicator turn={turn} player={player} remotePlayer={remotePlayer} />
       <PlayingBoard
         gameBoard={gameBoard}
         handleHumanMove={handleHumanMove}
