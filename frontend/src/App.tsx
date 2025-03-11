@@ -31,6 +31,7 @@ function App() {
   const [turn, setTurn] = useState<PlayerSymbol>("X");
   const [isAvailable, setIsAvailable] = useState(true);
   const [selectedUser, setSelectedUser] = useState<OnlineUser>();
+  const [notification, setNotification] = useState<string>();
   const socketRef = useRef<WebSocket>(null);
 
   const updateBoard = useCallback((game: Game) => {
@@ -145,12 +146,21 @@ function App() {
       }
       if (data.invite) {
         setGameRequest(data.invite);
+        setNotification(
+          `Hey ${user!.name}, ${data.invite.name} has invited you to play`
+        );
       }
       if (data.player) {
         setPlayer(data.player);
       }
       if (data.move) {
         handleMove(data.move);
+      }
+      if (data.quitnotification) {
+        setNotification(`${data.quitnotification.name} has quit.`);
+        setRemotePlayer(undefined);
+        setGameOver(true);
+        setHasStarted(false);
       }
     });
   }, [user, handleMove]);
@@ -195,13 +205,9 @@ function App() {
     socket.send(JSON.stringify({ invite: invitee }));
   };
 
-  useEffect(() => {
-    if (!gameRequest) return;
-    alert(`Hey ${user!.name}, ${gameRequest.name} has invited you to play`);
-  }, [gameRequest, user]);
-
   const handleAccept = () => {
-    setRemotePlayer(gameRequest);
+    const requestor = gameRequest;
+    setRemotePlayer(requestor);
     setGameRequest(undefined);
   };
 
@@ -210,7 +216,14 @@ function App() {
   };
 
   const handleQuit = () => {
+    if (!socketRef.current || !remotePlayer) return;
+    const currentRemotePlayer = remotePlayer;
+    console.log(remotePlayer);
     setRemotePlayer(undefined);
+    setGameOver(true);
+    setHasStarted(false);
+
+    socketRef.current.send(JSON.stringify({ quit: currentRemotePlayer.id }));
   };
 
   const handleSetIsAvailable = () => {
@@ -218,6 +231,12 @@ function App() {
     socketRef.current.send(JSON.stringify({ available: !isAvailable }));
     setIsAvailable((prev) => !prev);
   };
+
+  useEffect(() => {
+    if (!notification) return;
+    alert(notification);
+    setNotification(undefined);
+  }, [notification]);
 
   return (
     <div className="min-h-screen bg-zinc-100 flex flex-col items-center justify-center">

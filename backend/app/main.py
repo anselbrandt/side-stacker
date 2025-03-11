@@ -252,6 +252,16 @@ async def websocket_endpoint(
                     data={"invite": {"id": requester_id, "name": requester_name}},
                     id=data["invite"],
                 )
+            if "quit" in data:
+                print(
+                    f"{requester_name} with id {requester_id} is telling user {data["quit"]} they are quitting"
+                )
+                await manager.send_by_id(
+                    data={
+                        "quitnotification": {"id": requester_id, "name": requester_name}
+                    },
+                    id=data["quit"],
+                )
             if "available" in data:
                 status = data["available"]
                 manager.update_availability(requester_id, status)
