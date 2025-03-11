@@ -79,6 +79,7 @@ def find_games_by_owner(session: Session, owner_id: int) -> Optional[ActiveGame]
     game = session.exec(statement).first()
     if game:
         game.board = game.get_board()
+        game.players = game.get_players()
         return game
     else:
         return None

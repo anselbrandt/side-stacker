@@ -1,4 +1,6 @@
 import "./App.css";
+import { motion } from "motion/react";
+
 import { enhancedBoard } from "./game/gameUtils";
 import { gameEngine } from "./game/gameEngine";
 import { getRequest, postRequest } from "./utils";
@@ -286,13 +288,27 @@ function App() {
   return (
     <div className="min-h-screen bg-zinc-100 flex flex-col items-center justify-center">
       <Title />
+      <motion.div
+        className="mb-2 text-orange-600 font-mono"
+        initial={{ scale: 0 }}
+        animate={{ scale: 1 }}
+        transition={{ delay: 0.5 }}
+      >
+        {turn === player
+          ? "Your turn."
+          : remotePlayer
+          ? `${remotePlayer.name} is playing.`
+          : "I'm thinking..."}
+      </motion.div>
       <PlayingBoard
         gameBoard={gameBoard}
         handleHumanMove={handleHumanMove}
         cellStyle={cellStyle}
       />
       <div>
-        <div className="m-1 ml-3 mt-3  text-sm font-mono">Online users:</div>
+        <div className="flex flex-row justify-between">
+          <div className="m-1 ml-3 mt-3  text-sm font-mono">Online users:</div>
+        </div>
         <div className="flex flex-row">
           <OnlineUsers
             online={online}
