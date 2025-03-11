@@ -25,5 +25,6 @@ def create_game(users: List[User]) -> ActiveGame:
         expires=expires,
         board=json.dumps(board),
         players=json.dumps(players),
+        turn="X",
     )
     return game
