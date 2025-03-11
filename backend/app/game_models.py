@@ -1,13 +1,14 @@
 from typing import List, Optional
-from sqlmodel import SQLModel, Field
+from sqlmodel import SQLModel, Field, Column
+from sqlalchemy import JSON
 import json
 
 
 class ActiveGame(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
-    owner: int = Field(foreign_key="user.id")
+    owners: List[int] = Field(default_factory=list, sa_column=Column(JSON))
     expires: int
-    board: str = Field(default="[]")  # Store as a string
+    board: str = Field(default="[]")
 
     def get_board(self) -> List[List[Optional[str]]]:
         return json.loads(self.board)

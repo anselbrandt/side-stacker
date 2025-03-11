@@ -116,7 +116,7 @@ async def get_board(user: CurrentUser, session: Session = Depends(get_session)):
     if existing_game:
         return existing_game
     else:
-        game = create_game(user)
+        game = create_game(users=[user])
         new_game = add_game(session, game)
         return new_game
 

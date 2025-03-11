@@ -58,7 +58,9 @@ def find_game(session: Session, game_id: int) -> Optional[ActiveGame]:
 
 
 def find_games_by_owner(session: Session, owner_id: int) -> Optional[ActiveGame]:
-    statement = select(ActiveGame).where(ActiveGame.owner == owner_id).limit(1)
+    statement = (
+        select(ActiveGame).where(ActiveGame.owners.contains([owner_id])).limit(1)
+    )
     game = session.exec(statement).first()
     if game:
         game.board = game.get_board()
