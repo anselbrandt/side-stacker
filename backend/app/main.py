@@ -311,13 +311,12 @@ async def websocket_endpoint(
                 await manager.send_by_id(data=payload, id=ids[0])
                 await manager.send_by_id(data=payload, id=ids[1])
             if "move" in data:
-                game_id = data["move"]["game_id"]
                 player_id = data["move"]["player_id"]
+                game_id = data["move"]["game_id"]
                 turn = data["move"]["turn"]
-                game = find_game(session, game_id=game_id)
-                await manager.send_by_id(
-                    data={"updated_game": {"turn": turn}}, id=player_id
-                )
+                board = data["move"]["updated_board"]
+                payload = {"id": game_id, "board": board, "turn": turn}
+                await manager.send_by_id(data={"updated_game": payload}, id=player_id)
 
     except WebSocketDisconnect:
         user = manager.disconnect(websocket)

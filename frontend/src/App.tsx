@@ -55,6 +55,19 @@ function App() {
         player: turn,
       };
       const game = await postRequest<Game>("/move", payload);
+      if (remotePlayer && socketRef.current) {
+        const payload = {
+          game_id: gameId,
+          player_id: remotePlayer.id,
+          turn: player === "X" ? "O" : "X",
+          updated_board: game.board,
+        };
+        socketRef.current.send(
+          JSON.stringify({
+            move: payload,
+          })
+        );
+      }
       const board = updateBoard(game);
       if (isWinningMove(board, turn)) {
         setGameOver(true);
@@ -205,19 +218,6 @@ function App() {
   const handleHumanMove = async (cell: Cell) => {
     if (turn !== player) return;
     await handleMove(cell);
-    if (remotePlayer && socketRef.current) {
-      const payload = {
-        cell: { ...cell, symbol: player },
-        game_id: gameId,
-        player_id: remotePlayer.id,
-        turn: player === "X" ? "O" : "X",
-      };
-      socketRef.current.send(
-        JSON.stringify({
-          move: payload,
-        })
-      );
-    }
   };
 
   const cellStyle = (cell: Cell) => {
