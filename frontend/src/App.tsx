@@ -206,9 +206,11 @@ function App() {
   };
 
   const handleAccept = () => {
+    if (!socketRef.current || !gameRequest) return;
     const requestor = gameRequest;
     setRemotePlayer(requestor);
     setGameRequest(undefined);
+    socketRef.current.send(JSON.stringify({ accept: requestor?.id }));
   };
 
   const handleIgnore = () => {

@@ -262,6 +262,20 @@ async def websocket_endpoint(
                 manager.update_availability(requester_id, status)
                 users = manager.get_users()
                 await manager.broadcast(data={"online": users})
+            if "accept" in data:
+                # cleanup games belonging to each player
+                # create a shared game
+                # persist the game to sqlite
+                # send the board to each player
+                # persist the shared game player ids to a local variable
+                # notify other player invitee has accepted
+                # frontend should reset the board, setplayer and setturn
+                # set alert for player going first
+                # set alert for other player remote player is going first
+                print(f"accepting user {requester_name} {requester_id}")
+                user_to_notify = manager.get_user(data["accept"])
+                print(f"user to notify {user_to_notify}")
+                await manager.send_by_id
 
     except WebSocketDisconnect:
         user = manager.disconnect(websocket)
