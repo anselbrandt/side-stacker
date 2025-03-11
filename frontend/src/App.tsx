@@ -184,7 +184,12 @@ function App() {
         setTurn(multiplayer_game.turn);
       }
       if (data.updated_game) {
-        console.log(data.updated_game);
+        const updatedGame = {
+          id: data.updated_game.id,
+          board: data.updated_game.board,
+        } as unknown as Game;
+        updateBoard(updatedGame);
+        setTurn(data.updated_game.turn);
       }
     });
   }, [user, handleMove]);
