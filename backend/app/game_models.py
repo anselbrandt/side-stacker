@@ -29,3 +29,6 @@ class ActiveGame(SQLModel, table=True):
 
     def set_players(self, players: Dict[int, str]):
         self.players = json.dumps(players)
+
+    def set_turn(self, turn: str):
+        self.turn = turn

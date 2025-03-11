@@ -86,10 +86,15 @@ def update_game(
 ) -> ActiveGame:
     row, col = position
     board = game.get_board()
+    if symbol == "X":
+        next_turn = "O"
+    elif symbol == "O":
+        next_turn = "X"
 
     if board[row][col] is None:
         board[row][col] = symbol
         game.set_board(board)
+        game.set_turn(next_turn)
         session.commit()
         session.refresh(game)
     else:

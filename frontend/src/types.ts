@@ -19,6 +19,7 @@ export interface Game {
   owner: number;
   board: Board;
   expires: number;
+  turn: PlayerSymbol;
 }
 
 export interface User {
