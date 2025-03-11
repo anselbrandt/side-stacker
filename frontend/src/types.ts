@@ -14,12 +14,17 @@ export type EnhancedBoard = Cell[][];
 
 export type Board = PlayerSymbol[][];
 
+export interface Players {
+  [key: string]: PlayerSymbol;
+}
+
 export interface Game {
   id: number;
   owner: number;
   board: Board;
   expires: number;
   turn: PlayerSymbol;
+  players: Players;
 }
 
 export interface User {

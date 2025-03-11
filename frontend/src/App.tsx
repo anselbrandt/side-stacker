@@ -21,14 +21,14 @@ function App() {
   const [user, setUser] = useState<User>();
   const [gameId, setGameId] = useState<number>();
   const [gameBoard, setGameBoard] = useState<EnhancedBoard>();
-  const [player, setPlayer] = useState<PlayerSymbol>("X");
+  const [player, setPlayer] = useState<PlayerSymbol>();
   const [validMoves, setValidMoves] = useState<[number, number][]>();
   const [gameOver, setGameOver] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);
   const [online, setOnline] = useState<OnlineUser[]>();
   const [gameRequest, setGameRequest] = useState<OnlineUser>();
   const [remotePlayer, setRemotePlayer] = useState<OnlineUser>();
-  const [turn, setTurn] = useState<PlayerSymbol>("X");
+  const [turn, setTurn] = useState<PlayerSymbol>();
   const [isAvailable, setIsAvailable] = useState(true);
   const [selectedUser, setSelectedUser] = useState<OnlineUser>();
   const [notification, setNotification] = useState<string>();
@@ -63,13 +63,13 @@ function App() {
             alert("You win!");
           } else {
             alert(`${remotePlayer ? remotePlayer.name : "Computer"} wins.`);
-            setTurn((prev) => (prev === "X" ? "O" : "X"));
+            setTurn(game.turn);
             setHasStarted(false);
           }
         }, 500);
         return;
       } else {
-        setTurn((prev) => (prev === "X" ? "O" : "X"));
+        setTurn(game.turn);
       }
     },
     [
@@ -101,6 +101,8 @@ function App() {
         if (!user) return;
         const game = await getRequest<Game>("/board");
         updateBoard(game);
+        setPlayer(game.players[user.id]);
+        setTurn(game.turn);
       };
       await handleGetGame();
     }

@@ -9,7 +9,7 @@ class ActiveGame(SQLModel, table=True):
     owners: List[int] = Field(default_factory=list, sa_column=Column(JSON))
     expires: int
     board: str = Field(default="[]")
-    players: Dict[int, str] = Field(default_factory=dict, sa_column=Column(JSON))
+    players: str = Field(default="{}")
     turn: str
 
     def get_board(self) -> List[List[Optional[str]]]:

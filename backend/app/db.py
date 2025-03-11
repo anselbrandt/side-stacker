@@ -44,6 +44,7 @@ def add_game(session: Session, game: ActiveGame):
     session.commit()
     session.refresh(game)
     game.board = game.get_board()
+    game.players = game.get_players()
     return game
 
 
@@ -101,6 +102,7 @@ def update_game(
         raise ValueError("Position already occupied")
 
     game.board = game.get_board()
+    game.players = game.get_players()
     return game
 
 
