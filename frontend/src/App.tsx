@@ -162,6 +162,9 @@ function App() {
         setGameOver(true);
         setHasStarted(false);
       }
+      if (data.multiplayer_start) {
+        console.log(data.multiplayer_start);
+      }
     });
   }, [user, handleMove]);
 

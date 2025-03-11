@@ -1,6 +1,7 @@
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Annotated
+import json
 
 from fastapi import (
     Depends,
@@ -31,6 +32,8 @@ from app.db import (
     find_games_by_owner,
     update_game,
     reset_board,
+    delete_game,
+    add_shared_game,
 )
 from app.constants import ROOT_PATH, COOKIE_NAME, COOKIE_EXPIRY
 from app.auth import CurrentUser, create_user, create_jwt, decode_token
@@ -236,6 +239,7 @@ async def get_user_from_token(
 async def websocket_endpoint(
     websocket: WebSocket,
     user: Annotated[User, Depends(get_user_from_token)],
+    session: Session = Depends(get_session),
 ):
     await manager.connect(websocket, user)
     users = manager.get_users()
@@ -263,19 +267,37 @@ async def websocket_endpoint(
                 users = manager.get_users()
                 await manager.broadcast(data={"online": users})
             if "accept" in data:
-                # cleanup games belonging to each player
-                # create a shared game
-                # persist the game to sqlite
-                # send the board to each player
-                # persist the shared game player ids to a local variable
-                # notify other player invitee has accepted
-                # frontend should reset the board, setplayer and setturn
-                # set alert for player going first
-                # set alert for other player remote player is going first
-                print(f"accepting user {requester_name} {requester_id}")
+                # [x] cleanup games belonging to each player
+                # [x] create a shared game
+                # [x] persist the game to sqlite
+                # [x] send the board to each player
+                # [] persist the shared game player ids to a local variable
+                # [] notify other player invitee has accepted
+                # [] frontend should reset the board, setplayer and setturn
+                # [] set alert for player going first
+                # [] set alert for other player remote player is going first
+
                 user_to_notify = manager.get_user(data["accept"])
-                print(f"user to notify {user_to_notify}")
-                await manager.send_by_id
+                ids = [requester_id, user_to_notify["id"]]
+
+                # refactor to bulk delete - may require sqlalchemy
+                delete_game(session, ids[0])
+                delete_game(session, ids[1])
+
+                shared_game = create_game(users=[user, user_to_notify])
+                game = add_shared_game(session, shared_game)
+                owners = game.owners
+                players = game.players
+                board = game.board
+                payload = {
+                    "multiplayer_start": {
+                        "owners": owners,
+                        "players": players,
+                        "board": board,
+                    }
+                }
+                await manager.send_by_id(data=payload, id=ids[0])
+                await manager.send_by_id(data=payload, id=ids[1])
 
     except WebSocketDisconnect:
         user = manager.disconnect(websocket)
