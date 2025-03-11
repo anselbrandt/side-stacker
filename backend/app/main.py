@@ -12,7 +12,6 @@ from fastapi import (
     WebSocket,
     WebSocketDisconnect,
     WebSocketException,
-    Cookie,
     Query,
 )
 from fastapi.responses import JSONResponse
