@@ -1,7 +1,6 @@
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Annotated
-import json
 
 from fastapi import (
     Depends,
@@ -282,7 +281,6 @@ async def websocket_endpoint(
 
                 user_to_notify = manager.get_user(data["accept"])
                 user_id_to_notify = user_to_notify["id"]
-                user_name_to_notify = user_to_notify["name"]
                 ids = [sender_id, user_to_notify["id"]]
 
                 # refactor to bulk delete - may require sqlalchemy
@@ -301,16 +299,13 @@ async def websocket_endpoint(
 
                 shared_game = create_game(users=[user, user_to_notify])
                 game = add_shared_game(session, shared_game)
-                owners = game.owners
-                players = game.players
-                board = game.board
-                turn = game.turn
                 payload = {
-                    "multiplayer_start": {
-                        "owners": owners,
-                        "players": players,
-                        "board": board,
-                        "turn": turn,
+                    "multiplayer_game": {
+                        "id": game.id,
+                        "owners": game.owners,
+                        "players": game.players,
+                        "board": game.board,
+                        "turn": game.turn,
                     }
                 }
                 await manager.send_by_id(data=payload, id=ids[0])

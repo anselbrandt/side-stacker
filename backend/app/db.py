@@ -1,5 +1,5 @@
 import time
-from typing import List, Tuple, Optional
+from typing import Tuple, Optional
 from sqlmodel import create_engine, SQLModel, Session, select, delete
 from app.user_models import User
 from app.game_models import ActiveGame

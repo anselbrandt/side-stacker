@@ -162,23 +162,45 @@ function App() {
         setNotification(
           `${data.accept_notification.name} has accepted your invite to play`
         );
+        setRemotePlayer(data.accept_notification);
       }
-      if (data.multiplayer_start) {
-        console.log(data.multiplayer_start);
+      if (data.multiplayer_game) {
+        const multiplayer_game = data.multiplayer_game;
+        updateBoard(multiplayer_game);
+        setPlayer(multiplayer_game.players[user.id]);
+        setTurn(multiplayer_game.turn);
+      }
+      if (data.updated_game) {
+        console.log(data.updated_game);
       }
     });
   }, [user, handleMove]);
 
   useEffect(() => {
     const autoMove = async () => {
-      if (!hasStarted || turn === player || !validMoves || !gameBoard) return;
+      if (
+        remotePlayer ||
+        !hasStarted ||
+        turn === player ||
+        !validMoves ||
+        !gameBoard
+      )
+        return;
       setTimeout(() => {
         const move = gameEngine(gameBoard);
         handleMove(move);
       }, 1000);
     };
     autoMove();
-  }, [player, gameBoard, handleMove, hasStarted, validMoves, turn]);
+  }, [
+    player,
+    gameBoard,
+    handleMove,
+    hasStarted,
+    validMoves,
+    turn,
+    remotePlayer,
+  ]);
 
   const handleHumanMove = (cell: Cell) => {
     if (turn !== player) return;
