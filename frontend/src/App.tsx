@@ -202,9 +202,22 @@ function App() {
     remotePlayer,
   ]);
 
-  const handleHumanMove = (cell: Cell) => {
+  const handleHumanMove = async (cell: Cell) => {
     if (turn !== player) return;
-    handleMove(cell);
+    await handleMove(cell);
+    if (remotePlayer && socketRef.current) {
+      const payload = {
+        cell: { ...cell, symbol: player },
+        game_id: gameId,
+        player_id: remotePlayer.id,
+        turn: player === "X" ? "O" : "X",
+      };
+      socketRef.current.send(
+        JSON.stringify({
+          move: payload,
+        })
+      );
+    }
   };
 
   const cellStyle = (cell: Cell) => {
