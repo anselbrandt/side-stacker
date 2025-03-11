@@ -73,10 +73,12 @@ export const Controls: React.FC<Props> = ({
           Invite to Play
         </button>
       )}
-      <div className="m-2 flex flex-col items-center justify-center">
-        <Toggle isChecked={isAvailable} handleChange={handleSetIsAvailable} />
-        <div className="m-2 text-sm font-mono text-slate-500">Available</div>
-      </div>
+      {gameRequest || remotePlayer ? null : (
+        <div className="m-2 flex flex-col items-center justify-center">
+          <Toggle isChecked={isAvailable} handleChange={handleSetIsAvailable} />
+          <div className="m-2 text-sm font-mono text-slate-500">Available</div>
+        </div>
+      )}
     </div>
   );
 };
