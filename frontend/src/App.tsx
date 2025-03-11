@@ -218,7 +218,6 @@ function App() {
   const handleQuit = () => {
     if (!socketRef.current || !remotePlayer) return;
     const currentRemotePlayer = remotePlayer;
-    console.log(remotePlayer);
     setRemotePlayer(undefined);
     setGameOver(true);
     setHasStarted(false);

@@ -246,16 +246,11 @@ async def websocket_endpoint(
         while True:
             data = await websocket.receive_json()
             if "invite" in data:
-                user = manager.get_user(data["invite"])
-                user_name = user["name"]
                 await manager.send_by_id(
                     data={"invite": {"id": requester_id, "name": requester_name}},
                     id=data["invite"],
                 )
             if "quit" in data:
-                print(
-                    f"{requester_name} with id {requester_id} is telling user {data["quit"]} they are quitting"
-                )
                 await manager.send_by_id(
                     data={
                         "quitnotification": {"id": requester_id, "name": requester_name}
