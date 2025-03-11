@@ -44,59 +44,48 @@ function App() {
     return board;
   }, []);
 
-  const handleMove = useCallback(
-    async (cell: Cell) => {
-      if (!gameBoard || !validMoves || gameOver) return;
-      const { i, j } = cell.coordinates;
-      if (!isValid(validMoves, [i, j])) return;
-      setHasStarted(true);
+  const handleMove = async (cell: Cell) => {
+    if (!gameBoard || !validMoves || gameOver) return;
+    const { i, j } = cell.coordinates;
+    if (!isValid(validMoves, [i, j])) return;
+    setHasStarted(true);
+    const payload = {
+      ...cell.coordinates,
+      id: gameId,
+      player: turn,
+      winner: null,
+    };
+    const game = await postRequest<Game>("/move", payload);
+    if (remotePlayer && socketRef.current) {
       const payload = {
-        ...cell.coordinates,
-        id: gameId,
-        player: turn,
+        game_id: gameId,
+        player_id: remotePlayer.id,
+        turn: player === "X" ? "O" : "X",
+        updated_board: game.board,
       };
-      const game = await postRequest<Game>("/move", payload);
-      if (remotePlayer && socketRef.current) {
-        const payload = {
-          game_id: gameId,
-          player_id: remotePlayer.id,
-          turn: player === "X" ? "O" : "X",
-          updated_board: game.board,
-        };
-        socketRef.current.send(
-          JSON.stringify({
-            move: payload,
-          })
-        );
-      }
-      const board = updateBoard(game);
-      if (isWinningMove(board, turn)) {
-        setGameOver(true);
-        setTimeout(() => {
-          if (turn === player) {
-            alert("You win!");
-          } else {
-            alert(`${remotePlayer ? remotePlayer.name : "Computer"} wins.`);
-            setTurn(game.turn);
-            setHasStarted(false);
-          }
-        }, 500);
-        return;
-      } else {
-        setTurn(game.turn);
-      }
-    },
-    [
-      gameBoard,
-      gameOver,
-      validMoves,
-      gameId,
-      turn,
-      updateBoard,
-      player,
-      remotePlayer,
-    ]
-  );
+      socketRef.current.send(
+        JSON.stringify({
+          move: payload,
+        })
+      );
+    }
+    const board = updateBoard(game);
+    if (isWinningMove(board, turn)) {
+      setGameOver(true);
+      setTimeout(() => {
+        if (turn === player) {
+          alert("You win!");
+        } else {
+          alert(`${remotePlayer ? remotePlayer.name : "Computer"} wins.`);
+          setTurn(game.turn);
+          setHasStarted(false);
+        }
+      }, 500);
+      return;
+    } else {
+      setTurn(game.turn);
+    }
+  };
 
   useEffect(() => {
     async function login() {

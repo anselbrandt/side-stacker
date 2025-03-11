@@ -86,7 +86,11 @@ def find_games_by_owner(session: Session, owner_id: int) -> Optional[ActiveGame]
 
 
 def update_game(
-    session: Session, game: ActiveGame, position: Tuple[int, int], symbol: str
+    session: Session,
+    game: ActiveGame,
+    position: Tuple[int, int],
+    symbol: str,
+    winner: int | None,
 ) -> ActiveGame:
     row, col = position
     board = game.get_board()
@@ -99,6 +103,7 @@ def update_game(
         board[row][col] = symbol
         game.set_board(board)
         game.set_turn(next_turn)
+        game.winner = winner
         session.commit()
         session.refresh(game)
     else:

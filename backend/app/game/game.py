@@ -26,5 +26,6 @@ def create_game(users: List[User]) -> ActiveGame:
         board=json.dumps(board),
         players=json.dumps(players),
         turn="X",
+        winner=None,
     )
     return game

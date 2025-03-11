@@ -127,6 +127,7 @@ class Move(BaseModel):
     j: int
     id: int
     player: str
+    winner: int | None
 
 
 @app.post("/move")
@@ -136,10 +137,12 @@ async def create_move(
     if user is None:
         raise HTTPException(status_code=404, detail="Item not found")
     else:
+        print(move)
         game = find_game(session, game_id=move.id)
         position = (move.i, move.j)
         symbol = move.player
-        updated_game = update_game(session, game, position, symbol)
+        winner = move.winner
+        updated_game = update_game(session, game, position, symbol, winner)
         return updated_game
 
 
