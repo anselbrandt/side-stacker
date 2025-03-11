@@ -244,26 +244,29 @@ async def websocket_endpoint(
     await manager.connect(websocket, user)
     users = manager.get_users()
     await manager.broadcast(data={"online": users})
-    requester_id = user["id"]
-    requester_name = user["name"]
+    sender_id = user["id"]
+    sender_name = user["name"]
     try:
         while True:
             data = await websocket.receive_json()
             if "invite" in data:
                 await manager.send_by_id(
-                    data={"invite": {"id": requester_id, "name": requester_name}},
+                    data={"invite": {"id": sender_id, "name": sender_name}},
                     id=data["invite"],
                 )
             if "quit" in data:
                 await manager.send_by_id(
                     data={
-                        "quitnotification": {"id": requester_id, "name": requester_name}
+                        "quit_notification": {
+                            "id": sender_id,
+                            "name": sender_name,
+                        }
                     },
                     id=data["quit"],
                 )
             if "available" in data:
                 status = data["available"]
-                manager.update_availability(requester_id, status)
+                manager.update_availability(sender_id, status)
                 users = manager.get_users()
                 await manager.broadcast(data={"online": users})
             if "accept" in data:
@@ -278,22 +281,36 @@ async def websocket_endpoint(
                 # [] set alert for other player remote player is going first
 
                 user_to_notify = manager.get_user(data["accept"])
-                ids = [requester_id, user_to_notify["id"]]
+                user_id_to_notify = user_to_notify["id"]
+                user_name_to_notify = user_to_notify["name"]
+                ids = [sender_id, user_to_notify["id"]]
 
                 # refactor to bulk delete - may require sqlalchemy
                 delete_game(session, ids[0])
                 delete_game(session, ids[1])
+
+                notification_payload = {
+                    "accept_notification": {
+                        "id": sender_id,
+                        "name": sender_name,
+                    }
+                }
+                await manager.send_by_id(
+                    data=notification_payload, id=user_id_to_notify
+                )
 
                 shared_game = create_game(users=[user, user_to_notify])
                 game = add_shared_game(session, shared_game)
                 owners = game.owners
                 players = game.players
                 board = game.board
+                turn = game.turn
                 payload = {
                     "multiplayer_start": {
                         "owners": owners,
                         "players": players,
                         "board": board,
+                        "turn": turn,
                     }
                 }
                 await manager.send_by_id(data=payload, id=ids[0])

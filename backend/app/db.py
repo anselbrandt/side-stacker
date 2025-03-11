@@ -52,6 +52,8 @@ def add_shared_game(session: Session, game: ActiveGame):
     session.add(game)
     session.commit()
     session.refresh(game)
+    game.board = game.get_board()
+    game.players = game.get_players()
     return game
 
 

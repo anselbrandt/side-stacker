@@ -152,17 +152,16 @@ function App() {
           `Hey ${user!.name}, ${data.invite.name} has invited you to play`
         );
       }
-      if (data.player) {
-        setPlayer(data.player);
-      }
-      if (data.move) {
-        handleMove(data.move);
-      }
-      if (data.quitnotification) {
-        setNotification(`${data.quitnotification.name} has quit.`);
+      if (data.quit_notification) {
+        setNotification(`${data.quit_notification.name} has quit.`);
         setRemotePlayer(undefined);
         setGameOver(true);
         setHasStarted(false);
+      }
+      if (data.accept_notification) {
+        setNotification(
+          `${data.accept_notification.name} has accepted your invite to play`
+        );
       }
       if (data.multiplayer_start) {
         console.log(data.multiplayer_start);
