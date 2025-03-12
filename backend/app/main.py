@@ -272,16 +272,6 @@ async def websocket_endpoint(
                 users = manager.get_users()
                 await manager.broadcast(data={"online": users})
             if "accept" in data:
-                # [x] cleanup games belonging to each player
-                # [x] create a shared game
-                # [x] persist the game to sqlite
-                # [x] send the board to each player
-                # [] persist the shared game player ids to a local variable
-                # [] notify other player invitee has accepted
-                # [] frontend should reset the board, setplayer and setturn
-                # [] set alert for player going first
-                # [] set alert for other player remote player is going first
-
                 user_to_notify = manager.get_user(data["accept"])
                 user_id_to_notify = user_to_notify["id"]
                 ids = [sender_id, user_to_notify["id"]]
