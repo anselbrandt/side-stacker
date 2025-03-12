@@ -68,6 +68,11 @@ def delete_game(session: Session, owner_id: int):
     session.commit()
 
 
+def delete_game_by_id(session: Session, game_id: int):
+    session.exec(delete(ActiveGame).where(ActiveGame.id == game_id))
+    session.commit()
+
+
 def find_game(session: Session, game_id: int) -> Optional[ActiveGame]:
     return session.get(ActiveGame, game_id)
 

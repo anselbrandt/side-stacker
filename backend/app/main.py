@@ -30,9 +30,9 @@ from app.db import (
     find_game,
     find_games_by_owner,
     update_game,
-    reset_board,
     delete_game,
     add_shared_game,
+    delete_game_by_id,
 )
 from app.constants import ROOT_PATH, COOKIE_NAME, COOKIE_EXPIRY
 from app.auth import CurrentUser, create_user, create_jwt, decode_token
@@ -156,9 +156,12 @@ async def reset(
     if user is None:
         raise HTTPException(status_code=404, detail="Item not found")
     else:
-        game = find_game(session, game_id=reset.id)
-        updated_game = reset_board(session, game)
-        return updated_game
+        old_game = find_game(session, game_id=reset.id)
+        if old_game:
+            delete_game_by_id(session, game_id=reset.id)
+        game = create_game(users=[user])
+        new_game = add_game(session, game)
+        return new_game
 
 
 @app.post("/logout")

@@ -239,6 +239,10 @@ function App() {
   };
 
   const handleRestart = async () => {
+    if (remotePlayer) {
+      setRemotePlayer(undefined);
+      handleQuit();
+    }
     setGameOver(false);
     const game = await postRequest<Game>("/reset", { id: gameId });
     updateBoard(game);
