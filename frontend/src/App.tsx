@@ -2,7 +2,7 @@ import "./App.css";
 import { enhancedBoard } from "./game/gameUtils";
 import { gameEngine } from "./game/gameEngine";
 import { getRequest, postRequest } from "./utils";
-import { getValidMoves, isValid, isWinningMove } from "./game/gameLogic";
+import { getValidMoves, isValid, containsWinningMove } from "./game/gameLogic";
 import {
   Cell,
   EnhancedBoard,
@@ -70,7 +70,7 @@ function App() {
       );
     }
     const board = updateBoard(game);
-    if (isWinningMove(board, turn)) {
+    if (containsWinningMove(board, turn)) {
       setGameOver(true);
       setTimeout(() => {
         if (turn === player) {

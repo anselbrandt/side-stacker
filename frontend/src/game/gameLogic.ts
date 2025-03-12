@@ -89,7 +89,7 @@ export const isVertical = (
   return values.length === 4 && values.every((value) => value === symbol);
 };
 
-export const isWinningMove = (
+export const containsWinningMove = (
   gameBoard: EnhancedBoard,
   player: PlayerSymbol
 ) => {
