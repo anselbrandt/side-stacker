@@ -2,7 +2,7 @@ import "./App.css";
 import { enhancedBoard } from "./game/gameUtils";
 import { gameEngine } from "./game/gameEngine";
 import { getRequest, postRequest } from "./utils";
-import { getValidMoves, isValid, containsWinningMove } from "./game/gameLogic";
+import { getValidMoves, isValid, isWinningMove } from "./game/gameLogic";
 import {
   Cell,
   EnhancedBoard,
@@ -15,8 +15,9 @@ import { Controls } from "./components/Controls";
 import { OnlineUsers } from "./components/OnlineUsers";
 import { PlayingBoard } from "./components/PlayingBoard";
 import { Title } from "./components/Title";
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { TurnIndicator } from "./components/TurnIndicator";
+import { WinnerIndicator } from "./components/WinnerIndicator";
 
 function App() {
   const [user, setUser] = useState<User>();
@@ -33,27 +34,43 @@ function App() {
   const [isAvailable, setIsAvailable] = useState(true);
   const [selectedUser, setSelectedUser] = useState<OnlineUser>();
   const [notification, setNotification] = useState<string>();
+  const [winner, setWinner] = useState<string | null>(null);
   const socketRef = useRef<WebSocket>(null);
 
-  const updateBoard = useCallback((game: Game) => {
+  const updateBoard = (game: Game) => {
     setGameId(game.id);
+    setWinner(game.winner);
     const board = enhancedBoard(game.board);
     setGameBoard(board);
     const valid = getValidMoves(game.board);
     setValidMoves(valid);
     return board;
-  }, []);
+  };
 
   const handleMove = async (cell: Cell) => {
-    if (!gameBoard || !validMoves || gameOver) return;
+    if (!gameBoard || !validMoves || gameOver || !user) return;
     const { i, j } = cell.coordinates;
     if (!isValid(validMoves, [i, j])) return;
-    setHasStarted(true);
+    let winnerName = null;
+    if (isWinningMove(gameBoard, cell, turn)) {
+      winnerName =
+        turn === player
+          ? user.name
+          : remotePlayer
+          ? remotePlayer.name
+          : "Computer";
+      console.log(winnerName);
+      setWinner(winnerName);
+      setGameOver(true);
+      setHasStarted(false);
+    } else {
+      setHasStarted(true);
+    }
     const payload = {
       ...cell.coordinates,
       id: gameId,
       player: turn,
-      winner: null,
+      winner: winnerName,
     };
     const game = await postRequest<Game>("/move", payload);
     if (remotePlayer && socketRef.current) {
@@ -62,6 +79,7 @@ function App() {
         player_id: remotePlayer.id,
         turn: player === "X" ? "O" : "X",
         updated_board: game.board,
+        winner: winnerName,
       };
       socketRef.current.send(
         JSON.stringify({
@@ -69,20 +87,8 @@ function App() {
         })
       );
     }
-    const board = updateBoard(game);
-    if (containsWinningMove(board, turn)) {
-      setGameOver(true);
-      setTimeout(() => {
-        if (turn === player) {
-          alert("You win!");
-        } else {
-          alert(`${remotePlayer ? remotePlayer.name : "Computer"} wins.`);
-          setTurn(game.turn);
-          setHasStarted(false);
-        }
-      }, 500);
-      return;
-    } else {
+    updateBoard(game);
+    if (!winnerName) {
       setTurn(game.turn);
     }
   };
@@ -110,7 +116,7 @@ function App() {
       await handleGetGame();
     }
     getGame();
-  }, [user, updateBoard]);
+  }, [user]);
 
   useEffect(() => {
     const connect = () => {
@@ -230,6 +236,8 @@ function App() {
     const game = await postRequest<Game>("/reset", { id: gameId });
     updateBoard(game);
     setHasStarted(false);
+    setWinner(null);
+    setTurn(player);
   };
 
   const handleInvite = () => {
@@ -276,7 +284,15 @@ function App() {
   return (
     <div className="min-h-screen bg-zinc-100 flex flex-col items-center justify-center">
       <Title />
-      <TurnIndicator turn={turn} player={player} remotePlayer={remotePlayer} />
+      {winner ? (
+        <WinnerIndicator winner={winner} user={user} />
+      ) : (
+        <TurnIndicator
+          turn={turn}
+          player={player}
+          remotePlayer={remotePlayer}
+        />
+      )}
       <PlayingBoard
         gameBoard={gameBoard}
         handleHumanMove={handleHumanMove}

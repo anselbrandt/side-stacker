@@ -11,7 +11,7 @@ class ActiveGame(SQLModel, table=True):
     board: str = Field(default="[]")
     players: str = Field(default="{}")
     turn: str
-    winner: int | None
+    winner: str | None
 
     def get_board(self) -> List[List[Optional[str]]]:
         return json.loads(self.board)

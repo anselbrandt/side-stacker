@@ -127,7 +127,7 @@ class Move(BaseModel):
     j: int
     id: int
     player: str
-    winner: int | None
+    winner: str | None
 
 
 @app.post("/move")

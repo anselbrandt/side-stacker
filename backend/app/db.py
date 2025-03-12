@@ -90,7 +90,7 @@ def update_game(
     game: ActiveGame,
     position: Tuple[int, int],
     symbol: str,
-    winner: int | None,
+    winner: str | None,
 ) -> ActiveGame:
     row, col = position
     board = game.get_board()

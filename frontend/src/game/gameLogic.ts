@@ -1,5 +1,5 @@
 import { BOARD_SIZE } from "../constants";
-import { PlayerSymbol, Board, Position, EnhancedBoard } from "../types";
+import { PlayerSymbol, Board, Position, EnhancedBoard, Cell } from "../types";
 import { extractBoard } from "./gameUtils";
 
 export const getValidMoves = (board: Board): [number, number][] => {
@@ -94,6 +94,29 @@ export const containsWinningMove = (
   player: PlayerSymbol
 ) => {
   const board = extractBoard(gameBoard);
+
+  for (let i = 0; i < 7; i++) {
+    for (let j = 0; j < 7; j++) {
+      const position: Position = [i, j];
+      if (
+        isDiagonalNegative(board, position, player) ||
+        isDiagonalPositive(board, position, player) ||
+        isHorizontal(board, position, player) ||
+        isVertical(board, position, player)
+      )
+        return true;
+    }
+  }
+};
+
+export const isWinningMove = (
+  gameBoard: EnhancedBoard,
+  cell: Cell,
+  player: PlayerSymbol
+) => {
+  const { i, j } = cell.coordinates;
+  const board = extractBoard(gameBoard);
+  board[i][j] = player;
 
   for (let i = 0; i < 7; i++) {
     for (let j = 0; j < 7; j++) {

@@ -25,6 +25,7 @@ export interface Game {
   expires: number;
   turn: PlayerSymbol;
   players: Players;
+  winner: string | null;
 }
 
 export interface User {
