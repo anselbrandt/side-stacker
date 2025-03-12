@@ -32,8 +32,8 @@ from app.db import (
     update_game,
     delete_game,
     add_shared_game,
-    delete_game_by_id,
 )
+
 from app.constants import ROOT_PATH, COOKIE_NAME, COOKIE_EXPIRY
 from app.auth import CurrentUser, create_user, create_jwt, decode_token
 from app.game import create_game
@@ -156,9 +156,7 @@ async def reset(
     if user is None:
         raise HTTPException(status_code=404, detail="Item not found")
     else:
-        old_game = find_game(session, game_id=reset.id)
-        if old_game:
-            delete_game_by_id(session, game_id=reset.id)
+        delete_game(session=session, owner_id=user["id"])
         game = create_game(users=[user])
         new_game = add_game(session, game)
         return new_game
