@@ -317,7 +317,13 @@ async def websocket_endpoint(
                 game_id = data["move"]["game_id"]
                 turn = data["move"]["turn"]
                 board = data["move"]["updated_board"]
-                payload = {"id": game_id, "board": board, "turn": turn}
+                winner = data["move"]["winner"]
+                payload = {
+                    "id": game_id,
+                    "board": board,
+                    "turn": turn,
+                    "winner": winner,
+                }
                 await manager.send_by_id(data={"updated_game": payload}, id=player_id)
 
     except WebSocketDisconnect:

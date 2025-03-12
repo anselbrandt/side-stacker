@@ -182,9 +182,17 @@ function App() {
         const updatedGame = {
           id: data.updated_game.id,
           board: data.updated_game.board,
+          winner: data.updated_game.winner,
+          turn: data.updated_game.turn,
         } as unknown as Game;
+        if (data.updated_game.winner) {
+          setWinner(data.updated_game.winner);
+          setGameOver(true);
+          setHasStarted(false);
+        } else {
+          setTurn(data.updated_game.turn);
+        }
         updateBoard(updatedGame);
-        setTurn(data.updated_game.turn);
       }
     });
   }, [user, handleMove]);
