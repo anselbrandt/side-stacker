@@ -62,6 +62,7 @@ function App() {
       setWinner(winnerName);
       setGameOver(true);
       setHasStarted(false);
+      setRemotePlayer(undefined);
     } else {
       setHasStarted(true);
     }
@@ -189,6 +190,7 @@ function App() {
           setWinner(data.updated_game.winner);
           setGameOver(true);
           setHasStarted(false);
+          handleQuit();
         } else {
           setTurn(data.updated_game.turn);
         }
@@ -240,7 +242,6 @@ function App() {
 
   const handleRestart = async () => {
     if (remotePlayer) {
-      setRemotePlayer(undefined);
       handleQuit();
     }
     setGameOver(false);
