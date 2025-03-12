@@ -289,7 +289,9 @@ function App() {
 
   useEffect(() => {
     if (!notification) return;
-    alert(notification);
+    if (!winner) {
+      alert(notification);
+    }
     setNotification(undefined);
   }, [notification]);
 
