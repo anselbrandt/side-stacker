@@ -59,7 +59,6 @@ function App() {
           : remotePlayer
           ? remotePlayer.name
           : "Computer";
-      console.log(winnerName);
       setWinner(winnerName);
       setGameOver(true);
       setHasStarted(false);
@@ -285,7 +284,7 @@ function App() {
     <div className="min-h-screen bg-zinc-100 flex flex-col items-center justify-center">
       <Title />
       {winner ? (
-        <WinnerIndicator winner={winner} user={user} />
+        <WinnerIndicator winner={winner} user={user} turn={turn} />
       ) : (
         <TurnIndicator
           turn={turn}

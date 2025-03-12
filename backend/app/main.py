@@ -137,7 +137,6 @@ async def create_move(
     if user is None:
         raise HTTPException(status_code=404, detail="Item not found")
     else:
-        print(move)
         game = find_game(session, game_id=move.id)
         position = (move.i, move.j)
         symbol = move.player
