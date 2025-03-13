@@ -32,9 +32,6 @@ class Game(SQLModel, table=True):
     def set_players(self, players: Dict[int, str]):
         self.players = json.dumps(players)
 
-    def set_turn(self, turn: str):
-        self.turn = turn
-
 
 class User(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
