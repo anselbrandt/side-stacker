@@ -3,7 +3,7 @@ from typing import Tuple, Optional
 
 from sqlmodel import create_engine, SQLModel, Session, select, delete
 
-from app.models import User, ActiveGame
+from app.models import User, Game
 from app.game import new_board
 
 DATABASE_URL = "sqlite:///db.sqlite"
@@ -40,7 +40,7 @@ def add_user(session: Session, user: User):
     return user
 
 
-def add_game(session: Session, game: ActiveGame):
+def add_game(session: Session, game: Game):
     session.add(game)
     session.commit()
     session.refresh(game)
@@ -49,7 +49,7 @@ def add_game(session: Session, game: ActiveGame):
     return game
 
 
-def add_shared_game(session: Session, game: ActiveGame):
+def add_shared_game(session: Session, game: Game):
     session.add(game)
     session.commit()
     session.refresh(game)
@@ -60,23 +60,21 @@ def add_shared_game(session: Session, game: ActiveGame):
 
 def cleanup_games(session: Session):
     current_time = int(time.time())
-    session.exec(delete(ActiveGame).where(ActiveGame.expires < current_time))
+    session.exec(delete(Game).where(Game.expires < current_time))
     session.commit()
 
 
 def delete_game(session: Session, owner_id: int):
-    session.exec(delete(ActiveGame).where(ActiveGame.owners.contains([owner_id])))
+    session.exec(delete(Game).where(Game.owners.contains([owner_id])))
     session.commit()
 
 
-def find_game(session: Session, game_id: int) -> Optional[ActiveGame]:
-    return session.get(ActiveGame, game_id)
+def find_game(session: Session, game_id: int) -> Optional[Game]:
+    return session.get(Game, game_id)
 
 
-def find_games_by_owner(session: Session, owner_id: int) -> Optional[ActiveGame]:
-    statement = (
-        select(ActiveGame).where(ActiveGame.owners.contains([owner_id])).limit(1)
-    )
+def find_games_by_owner(session: Session, owner_id: int) -> Optional[Game]:
+    statement = select(Game).where(Game.owners.contains([owner_id])).limit(1)
     game = session.exec(statement).first()
     if game:
         game.board = game.get_board()
@@ -88,11 +86,11 @@ def find_games_by_owner(session: Session, owner_id: int) -> Optional[ActiveGame]
 
 def update_game(
     session: Session,
-    game: ActiveGame,
+    game: Game,
     position: Tuple[int, int],
     symbol: str,
     winner: str | None,
-) -> ActiveGame:
+) -> Game:
     row, col = position
     board = game.get_board()
     if symbol == "X":
@@ -115,7 +113,7 @@ def update_game(
     return game
 
 
-def reset_board(session: Session, game: ActiveGame) -> ActiveGame:
+def reset_board(session: Session, game: Game) -> Game:
     board = new_board()
     game.set_board(board)
     session.commit()

@@ -2,7 +2,7 @@ import json
 import time
 from typing import List
 
-from app.models import ActiveGame
+from app.models import Game
 from app.constants import COOKIE_EXPIRY, BOARD_SIZE
 from app.models import User
 
@@ -11,7 +11,7 @@ def new_board():
     return [[None for j in range(BOARD_SIZE)] for i in range(BOARD_SIZE)]
 
 
-def create_game(users: List[User]) -> ActiveGame:
+def create_game(users: List[User]) -> Game:
     current_time = int(time.time())
     expires = current_time + COOKIE_EXPIRY
     board = new_board()
@@ -20,7 +20,7 @@ def create_game(users: List[User]) -> ActiveGame:
         players = {str(ids[0]): "X"}
     elif len(ids) == 2:
         players = {str(ids[0]): "X", ids[1]: "O"}
-    game = ActiveGame(
+    game = Game(
         owners=ids,
         expires=expires,
         board=json.dumps(board),

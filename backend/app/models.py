@@ -5,7 +5,7 @@ from sqlalchemy import JSON
 from sqlmodel import SQLModel, Field, Column
 
 
-class ActiveGame(SQLModel, table=True):
+class Game(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     owners: List[int] = Field(default_factory=list, sa_column=Column(JSON))
     expires: int
