@@ -2,9 +2,9 @@ import json
 import time
 from typing import List
 
-from app.game_models import ActiveGame
+from app.models import ActiveGame
 from app.constants import COOKIE_EXPIRY, BOARD_SIZE
-from app.user_models import User
+from app.models import User
 
 
 def new_board():

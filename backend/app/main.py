@@ -2,42 +2,42 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Annotated
 
+
 from fastapi import (
     Depends,
     FastAPI,
+    HTTPException,
+    Query,
     Request,
     Response,
     status,
-    HTTPException,
     WebSocket,
     WebSocketDisconnect,
     WebSocketException,
-    Query,
 )
-from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
-from sqlmodel import Session
 from pydantic import BaseModel
+from sqlmodel import Session
 
+from app.auth import CurrentUser, create_user, create_jwt, decode_token
+from app.constants import ROOT_PATH, COOKIE_NAME, COOKIE_EXPIRY
 from app.db import (
-    init_db,
-    get_session,
-    add_user,
-    cleanup_users,
     add_game,
+    add_shared_game,
+    add_user,
     cleanup_games,
+    cleanup_users,
+    delete_game,
     find_game,
     find_games_by_owner,
+    get_session,
+    init_db,
     update_game,
-    delete_game,
-    add_shared_game,
 )
-
-from app.constants import ROOT_PATH, COOKIE_NAME, COOKIE_EXPIRY
-from app.auth import CurrentUser, create_user, create_jwt, decode_token
 from app.game import create_game
-from app.user_models import User
+from app.models import User
 
 dist = Path("../dist")
 dist.mkdir(exist_ok=True)

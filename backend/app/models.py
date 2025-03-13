@@ -1,7 +1,8 @@
 from typing import Dict, List, Optional
-from sqlmodel import SQLModel, Field, Column
-from sqlalchemy import JSON
 import json
+
+from sqlalchemy import JSON
+from sqlmodel import SQLModel, Field, Column
 
 
 class ActiveGame(SQLModel, table=True):
@@ -33,3 +34,9 @@ class ActiveGame(SQLModel, table=True):
 
     def set_turn(self, turn: str):
         self.turn = turn
+
+
+class User(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    name: str
+    expires: int

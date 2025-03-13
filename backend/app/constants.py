@@ -1,6 +1,6 @@
+from dotenv import load_dotenv
 import base64
 import os
-from dotenv import load_dotenv
 import secrets
 
 load_dotenv()

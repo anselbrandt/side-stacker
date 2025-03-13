@@ -1,8 +1,9 @@
 import time
 from typing import Tuple, Optional
+
 from sqlmodel import create_engine, SQLModel, Session, select, delete
-from app.user_models import User
-from app.game_models import ActiveGame
+
+from app.models import User, ActiveGame
 from app.game import new_board
 
 DATABASE_URL = "sqlite:///db.sqlite"
