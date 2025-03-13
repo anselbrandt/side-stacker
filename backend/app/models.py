@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, TypedDict
 import json
 
 from sqlalchemy import JSON
@@ -40,3 +40,10 @@ class User(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     name: str
     expires: int
+
+
+class UserDict(TypedDict):
+    id: int
+    name: str
+    expires: int
+    available: bool | None

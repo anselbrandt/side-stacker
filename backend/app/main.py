@@ -37,7 +37,7 @@ from app.db import (
     update_game,
 )
 from app.game import create_game
-from app.models import User
+from app.models import User, UserDict
 
 dist = Path("../dist")
 dist.mkdir(exist_ok=True)
@@ -157,7 +157,7 @@ async def logout(response: Response):
 class ConnectionManager:
     def __init__(self):
         self.active_connections: list[WebSocket] = []
-        self.users: dict[WebSocket, dict] = {}
+        self.users: dict[WebSocket, UserDict] = {}
         self.ids: dict[int, WebSocket] = {}
 
     async def connect(self, websocket: WebSocket, user: User):

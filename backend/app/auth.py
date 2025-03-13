@@ -4,21 +4,21 @@ import logging
 import time
 
 from fastapi import Depends, Request
-from utils import generateFruitname
 import jwt
 
 from app.constants import COOKIE_NAME, COOKIE_EXPIRY, TOKEN_ALGORITHM, TOKEN_SECRET
-from app.models import User
+from app.models import User, UserDict
+from utils import generateFruitname
 
 log = logging.getLogger("uvicorn")
 
 
-def decode_token(token) -> User:
+def decode_token(token) -> UserDict:
     user = jwt.decode(token, TOKEN_SECRET, algorithms=[TOKEN_ALGORITHM])
     return user
 
 
-def get_current_user(request: Request) -> User | None:
+def get_current_user(request: Request) -> UserDict | None:
     token = request.cookies.get(COOKIE_NAME)
     if token is None:
         return None
@@ -30,7 +30,7 @@ def get_current_user(request: Request) -> User | None:
         return None
 
 
-CurrentUser = Annotated[User, Depends(get_current_user)]
+CurrentUser = Annotated[UserDict, Depends(get_current_user)]
 
 
 def create_jwt(user: User):
