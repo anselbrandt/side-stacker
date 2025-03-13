@@ -69,21 +69,6 @@ app.add_middleware(
 )
 
 
-@app.get("/health")
-async def health(request: Request, response: Response):
-    response.status_code = status.HTTP_200_OK
-    return {"status": "ok"}
-
-
-@app.get("/count/{count}")
-async def add(
-    count: int,
-    request: Request,
-    response: Response,
-):
-    return {"count": count + 1}
-
-
 @app.get("/login")
 async def login(
     request: Request, user: CurrentUser, session: Session = Depends(get_session)
