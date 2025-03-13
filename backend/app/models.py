@@ -6,9 +6,9 @@ from sqlmodel import SQLModel, Field, Column
 
 
 class Game(SQLModel, table=True):
+    expires: int
     id: int | None = Field(default=None, primary_key=True)
     owners: List[int] = Field(default_factory=list, sa_column=Column(JSON))
-    expires: int
     board: str = Field(default="[]")
     players: Dict = Field(default_factory=dict, sa_column=Column(JSON))
     turn: str
