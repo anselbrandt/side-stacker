@@ -45,7 +45,6 @@ def add_game(session: Session, game: Game):
     session.commit()
     session.refresh(game)
     game.board = game.get_board()
-    game.players = game.get_players()
     return game
 
 
@@ -54,7 +53,6 @@ def add_shared_game(session: Session, game: Game):
     session.commit()
     session.refresh(game)
     game.board = game.get_board()
-    game.players = game.get_players()
     return game
 
 
@@ -78,7 +76,6 @@ def find_games_by_owner(session: Session, owner_id: int) -> Optional[Game]:
     game = session.exec(statement).first()
     if game:
         game.board = game.get_board()
-        game.players = game.get_players()
         return game
     else:
         return None
@@ -108,7 +105,6 @@ def update_game(
         raise ValueError("Position already occupied")
 
     game.board = game.get_board()
-    game.players = game.get_players()
     return game
 
 

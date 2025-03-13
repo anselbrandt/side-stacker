@@ -10,7 +10,7 @@ class Game(SQLModel, table=True):
     owners: List[int] = Field(default_factory=list, sa_column=Column(JSON))
     expires: int
     board: str = Field(default="[]")
-    players: str = Field(default="{}")
+    players: Dict = Field(default_factory=dict, sa_column=Column(JSON))
     turn: str
     winner: str | None
 
@@ -25,12 +25,6 @@ class Game(SQLModel, table=True):
 
     def set_owners(self, owners: List[int]):
         self.owners = json.dumps(owners)
-
-    def get_players(self) -> Dict[int, str]:
-        return json.loads(self.players)
-
-    def set_players(self, players: Dict[int, str]):
-        self.players = json.dumps(players)
 
 
 class User(SQLModel, table=True):

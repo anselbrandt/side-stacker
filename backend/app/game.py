@@ -16,15 +16,14 @@ def create_game(users: List[User]) -> Game:
     expires = current_time + COOKIE_EXPIRY
     board = new_board()
     ids = [user["id"] for user in users]
-    if len(ids) == 1:
-        players = {str(ids[0]): "X"}
-    elif len(ids) == 2:
+    players = {str(ids[0]): "X"}
+    if len(ids) == 2:
         players = {str(ids[0]): "X", ids[1]: "O"}
     game = Game(
         owners=ids,
         expires=expires,
         board=json.dumps(board),
-        players=json.dumps(players),
+        players=players,
         turn="X",
         winner=None,
     )
