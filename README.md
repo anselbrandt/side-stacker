@@ -48,3 +48,13 @@ VITE_BASEPATH="/app"
 VITE_HOSTNAME="sub.domain.tld"
 VITE_API_BASEPATH="/api"
 ```
+
+### Docker
+
+```
+docker build -t side-stacker .
+```
+
+```
+docker run --rm -p 8000:8000 side-stacker
+```
