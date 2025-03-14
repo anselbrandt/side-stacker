@@ -256,7 +256,7 @@ function App() {
   };
 
   const handleInvite = () => {
-    if (!socketRef.current || !selectedUser) return;
+    if (!socketRef.current || !selectedUser || !selectedUser.available) return;
     const socket = socketRef.current;
     const invitee = selectedUser.id;
     socket.send(JSON.stringify({ invite: invitee }));
