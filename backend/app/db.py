@@ -81,13 +81,6 @@ def cleanup_games(session: Session):
     session.commit()
 
 
-def find_game(session: Session, game_id: int) -> Optional[Game]:
-    game = session.get(Game, game_id)
-    if game:
-        game.board = game.get_board()
-        return game
-
-
 class Move(BaseModel):
     i: int
     j: int

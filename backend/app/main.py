@@ -29,7 +29,6 @@ from app.db import (
     add_user,
     cleanup_games,
     cleanup_users,
-    find_game,
     get_session,
     init_db,
     update_game,
