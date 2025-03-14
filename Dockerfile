@@ -2,7 +2,6 @@ FROM node:22.14.0-slim AS build
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable pnpm
-RUN corepack use pnpm@10.6.3
 COPY /frontend /app/frontend
 WORKDIR /app/frontend
 
@@ -21,4 +20,4 @@ WORKDIR /app/backend
 RUN uv sync --frozen --no-cache
 
 ENV ENV_MODE="PROD"
-CMD ["/app/.venv/bin/uvicorn", "app.main:app","--port", "8000", "--host", "0.0.0.0"]
+CMD [".venv/bin/uvicorn", "app.main:app","--port", "8000", "--host", "0.0.0.0"]
