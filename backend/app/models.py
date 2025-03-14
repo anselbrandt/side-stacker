@@ -1,6 +1,7 @@
 from typing import Dict, List, TypedDict
 import json
 
+from pydantic import BaseModel
 from sqlalchemy import JSON
 from sqlmodel import SQLModel, Field, Column, Relationship
 
@@ -35,3 +36,11 @@ class UserDict(TypedDict):
     expires: int
     game_id: int | None
     available: bool | None
+
+
+class Move(BaseModel):
+    i: int
+    j: int
+    id: int
+    player: str
+    winner: str | None

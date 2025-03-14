@@ -34,7 +34,7 @@ from app.db import (
     update_game,
 )
 from app.game import create_game, create_multiplayer_game
-from app.models import User, UserDict, Game
+from app.models import User, UserDict, Game, Move
 
 dist = Path("../dist")
 dist.mkdir(exist_ok=True)
@@ -104,14 +104,6 @@ async def get_board(user: CurrentUser, session: Session = Depends(get_session)):
         new_game = create_game(db_user)
         game = add_game(session, new_game, db_user)
         return game
-
-
-class Move(BaseModel):
-    i: int
-    j: int
-    id: int
-    player: str
-    winner: str | None
 
 
 @app.post("/move")

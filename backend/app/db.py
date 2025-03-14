@@ -1,11 +1,9 @@
 import time
-from typing import List, Tuple, Optional
+from typing import List
 
-from pydantic import BaseModel
 from sqlmodel import create_engine, SQLModel, Session, select
 
 from app.models import User, Game
-from app.game import new_board
 
 DATABASE_URL = "sqlite:///db.sqlite"
 
@@ -79,14 +77,6 @@ def cleanup_games(session: Session):
     for game in games:
         session.delete(game)
     session.commit()
-
-
-class Move(BaseModel):
-    i: int
-    j: int
-    id: int
-    player: str
-    winner: str | None
 
 
 def update_game(session: Session, game: Game, move) -> Game:
