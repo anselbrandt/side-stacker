@@ -1,7 +1,8 @@
 import time
-from typing import Tuple, Optional
+from typing import List, Tuple, Optional
 
-from sqlmodel import create_engine, SQLModel, Session, select, delete
+from pydantic import BaseModel
+from sqlmodel import create_engine, SQLModel, Session, select
 
 from app.models import User, Game
 from app.game import new_board
@@ -25,7 +26,10 @@ def get_session():
 
 def cleanup_users(session: Session):
     current_time = int(time.time())
-    session.exec(delete(User).where(User.expires < current_time))
+    statement = select(User).where(User.expires < current_time)
+    users = session.exec(statement).all()
+    for user in users:
+        session.delete(user)
     session.commit()
 
 
@@ -40,7 +44,11 @@ def add_user(session: Session, user: User):
     return user
 
 
-def add_game(session: Session, game: Game):
+def add_game(session: Session, game: Game, user: User) -> Game:
+    session.add(game)
+    session.commit()
+    session.refresh(game)
+    game.owners.append(user)
     session.add(game)
     session.commit()
     session.refresh(game)
@@ -48,9 +56,17 @@ def add_game(session: Session, game: Game):
     return game
 
 
-def add_shared_game(session: Session, game: Game):
+def add_multiplayer(session: Session, game: Game, users: List[User]) -> Game:
+    user_1, user_2 = users
     session.add(game)
     session.commit()
+    session.refresh(game)
+    game.owners.append(user_1)
+    game.owners.append(user_2)
+    session.add(game)
+    session.commit()
+    session.refresh(user_1)
+    session.refresh(user_2)
     session.refresh(game)
     game.board = game.get_board()
     return game
@@ -58,42 +74,37 @@ def add_shared_game(session: Session, game: Game):
 
 def cleanup_games(session: Session):
     current_time = int(time.time())
-    session.exec(delete(Game).where(Game.expires < current_time))
-    session.commit()
-
-
-def delete_game(session: Session, owner_id: int):
-    session.exec(delete(Game).where(Game.owners.contains([owner_id])))
+    statement = select(Game).where(Game.expires < current_time)
+    games = session.exec(statement).all()
+    for game in games:
+        session.delete(game)
     session.commit()
 
 
 def find_game(session: Session, game_id: int) -> Optional[Game]:
-    return session.get(Game, game_id)
-
-
-def find_games_by_owner(session: Session, owner_id: int) -> Optional[Game]:
-    statement = select(Game).where(Game.owners.contains([owner_id])).limit(1)
-    game = session.exec(statement).first()
+    game = session.get(Game, game_id)
     if game:
         game.board = game.get_board()
         return game
-    else:
-        return None
 
 
-def update_game(
-    session: Session,
-    game: Game,
-    position: Tuple[int, int],
-    symbol: str,
-    winner: str | None,
-) -> Game:
+class Move(BaseModel):
+    i: int
+    j: int
+    id: int
+    player: str
+    winner: str | None
+
+
+def update_game(session: Session, game: Game, move) -> Game:
+    position = (move.i, move.j)
+    symbol = move.player
+    winner = move.winner
     row, col = position
     board = game.get_board()
     next_turn = "O"
     if symbol == "O":
         next_turn = "X"
-
     if board[row][col] is None:
         board[row][col] = symbol
         game.set_board(board)
@@ -101,17 +112,5 @@ def update_game(
         game.winner = winner
         session.commit()
         session.refresh(game)
-    else:
-        raise ValueError("Position already occupied")
-
-    game.board = game.get_board()
-    return game
-
-
-def reset_board(session: Session, game: Game) -> Game:
-    board = new_board()
-    game.set_board(board)
-    session.commit()
-    session.refresh(game)
-    game.board = game.get_board()
-    return game
+        game.board = game.get_board()
+        return game

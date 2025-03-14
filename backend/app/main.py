@@ -25,19 +25,17 @@ from app.auth import CurrentUser, create_user, create_jwt, decode_token
 from app.constants import ROOT_PATH, COOKIE_NAME, COOKIE_EXPIRY
 from app.db import (
     add_game,
-    add_shared_game,
+    add_multiplayer,
     add_user,
     cleanup_games,
     cleanup_users,
-    delete_game,
     find_game,
-    find_games_by_owner,
     get_session,
     init_db,
     update_game,
 )
-from app.game import create_game
-from app.models import User, UserDict
+from app.game import create_game, create_multiplayer_game
+from app.models import User, UserDict, Game
 
 dist = Path("../dist")
 dist.mkdir(exist_ok=True)
@@ -76,7 +74,7 @@ async def login(
     cleanup_users(session)
     if user:
         jwt_token = request.cookies.get(COOKIE_NAME)
-        return {**user, "token": jwt_token}
+        return {**user.model_dump(), "token": jwt_token}
     else:
         user = create_user()
         new_user = add_user(session, user)
@@ -98,13 +96,15 @@ async def get_board(user: CurrentUser, session: Session = Depends(get_session)):
     if user is None:
         raise HTTPException(status_code=404, detail="Item not found")
     cleanup_games(session)
-    existing_game = find_games_by_owner(session, user["id"])
-    if existing_game:
-        return existing_game
-    else:
-        game = create_game(users=[user])
-        new_game = add_game(session, game)
-        return new_game
+    db_user = session.get(User, user.id)
+    if db_user:
+        prev_game = db_user.game
+        if prev_game:
+            prev_game.board = prev_game.get_board()
+            return prev_game
+        new_game = create_game(db_user)
+        game = add_game(session, new_game, db_user)
+        return game
 
 
 class Move(BaseModel):
@@ -121,12 +121,10 @@ async def create_move(
 ):
     if user is None:
         raise HTTPException(status_code=404, detail="Item not found")
-    else:
-        game = find_game(session, game_id=move.id)
-        position = (move.i, move.j)
-        symbol = move.player
-        winner = move.winner
-        updated_game = update_game(session, game, position, symbol, winner)
+
+    game = session.get(Game, move.id)
+    if game:
+        updated_game = update_game(session, game, move)
         return updated_game
 
 
@@ -141,10 +139,16 @@ async def reset(
     if user is None:
         raise HTTPException(status_code=404, detail="Item not found")
     else:
-        delete_game(session=session, owner_id=user["id"])
-        game = create_game(users=[user])
-        new_game = add_game(session, game)
-        return new_game
+        db_user = session.get(User, user.id)
+        if db_user:
+            prev_game = db_user.game
+            if prev_game:
+                session.delete(prev_game)
+                session.commit()
+                session.refresh(db_user)
+            new_game = create_game(db_user)
+            game = add_game(session, new_game, db_user)
+            return game
 
 
 @app.post("/logout")
@@ -160,7 +164,7 @@ class ConnectionManager:
         self.users: dict[WebSocket, UserDict] = {}
         self.ids: dict[int, WebSocket] = {}
 
-    async def connect(self, websocket: WebSocket, user: User):
+    async def connect(self, websocket: WebSocket, user: UserDict):
         self.active_connections.append(websocket)
         self.users[websocket] = {**user, "available": True}
         self.ids[user["id"]] = websocket
@@ -225,7 +229,7 @@ async def get_user_from_token(
 @app.websocket("/ws")
 async def websocket_endpoint(
     websocket: WebSocket,
-    user: Annotated[User, Depends(get_user_from_token)],
+    user: Annotated[UserDict, Depends(get_user_from_token)],
     session: Session = Depends(get_session),
 ):
     await manager.connect(websocket, user)
@@ -262,8 +266,11 @@ async def websocket_endpoint(
                 ids = [sender_id, user_to_notify["id"]]
 
                 # refactor to bulk delete - may require sqlalchemy
-                delete_game(session, ids[0])
-                delete_game(session, ids[1])
+                for id in ids:
+                    player = session.get(User, id)
+                    if player and player.game_id:
+                        game = session.get(Game, player.game_id)
+                        session.delete(game)
 
                 notification_payload = {
                     "accept_notification": {
@@ -274,18 +281,21 @@ async def websocket_endpoint(
                 await manager.send_by_id(
                     data=notification_payload, id=user_id_to_notify
                 )
-
-                shared_game = create_game(users=[user, user_to_notify])
-                game = add_shared_game(session, shared_game)
-                payload = {
-                    "multiplayer_game": {
-                        "id": game.id,
-                        "owners": game.owners,
-                        "players": game.players,
-                        "board": game.board,
-                        "turn": game.turn,
+                users = [user, user_to_notify]
+                shared_game = create_multiplayer_game(users=users)
+                user1 = session.get(User, user["id"])
+                user2 = session.get(User, user_id_to_notify["id"])
+                if user1 and user2:
+                    game = add_multiplayer(session, shared_game, [user1, user2])
+                    payload = {
+                        "multiplayer_game": {
+                            "id": game.id,
+                            "owners": game.owners,
+                            "players": game.players,
+                            "board": game.board,
+                            "turn": game.turn,
+                        }
                     }
-                }
                 await manager.send_by_id(data=payload, id=ids[0])
                 await manager.send_by_id(data=payload, id=ids[1])
             if "move" in data:

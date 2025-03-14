@@ -18,19 +18,19 @@ def decode_token(token) -> UserDict:
     return user
 
 
-def get_current_user(request: Request) -> UserDict | None:
+def get_current_user(request: Request) -> User | None:
     token = request.cookies.get(COOKIE_NAME)
     if token is None:
         return None
     try:
         user = decode_token(token)
-        return user
+        return User(id=user["id"], name=user["name"], expires=user["expires"])
     except Exception as error:
         log.info(f"{request.headers.items()}_{error}")
         return None
 
 
-CurrentUser = Annotated[UserDict, Depends(get_current_user)]
+CurrentUser = Annotated[User, Depends(get_current_user)]
 
 
 def create_jwt(user: User):
