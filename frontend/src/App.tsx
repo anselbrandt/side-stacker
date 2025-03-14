@@ -86,6 +86,10 @@ function App() {
           move: payload,
         })
       );
+      if (winnerName) {
+        setIsAvailable(true);
+        socketRef.current.send(JSON.stringify({ available: true }));
+      }
     }
     updateBoard(game);
     if (!winnerName) {
@@ -181,6 +185,8 @@ function App() {
         updateBoard(multiplayer_game);
         setPlayer(multiplayer_game.players[user.id]);
         setTurn(multiplayer_game.turn);
+        setIsAvailable(false);
+        socket.send(JSON.stringify({ available: false }));
       }
       if (data.updated_game) {
         const updatedGame = {
@@ -194,6 +200,8 @@ function App() {
           setGameOver(true);
           setHasStarted(false);
           handleQuit();
+          setIsAvailable(true);
+          socket.send(JSON.stringify({ available: true }));
         } else {
           setTurn(data.updated_game.turn);
         }
