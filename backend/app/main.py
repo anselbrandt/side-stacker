@@ -1,4 +1,5 @@
 from contextlib import asynccontextmanager
+import json
 from pathlib import Path
 from typing import Annotated
 
@@ -179,6 +180,13 @@ class ConnectionManager:
         else:
             raise WebSocketException(code=status.WS_1008_POLICY_VIOLATION)
 
+    async def send_by_id_text(self, text, id: int):
+        websocket = self.ids.get(id)
+        if websocket:
+            await websocket.send_text(data=text)
+        else:
+            raise WebSocketException(code=status.WS_1008_POLICY_VIOLATION)
+
     async def broadcast(self, data):
         for connection in self.active_connections:
             await connection.send_json(data=data)
@@ -220,14 +228,14 @@ async def get_user_from_token(
 @app.websocket("/ws")
 async def websocket_endpoint(
     websocket: WebSocket,
-    user: Annotated[UserDict, Depends(get_user_from_token)],
+    incoming_user: Annotated[UserDict, Depends(get_user_from_token)],
     session: Session = Depends(get_session),
 ):
-    await manager.connect(websocket, user)
-    users = manager.get_users()
-    await manager.broadcast(data={"online": users})
-    sender_id = user["id"]
-    sender_name = user["name"]
+    await manager.connect(websocket, incoming_user)
+    onlinUsers = manager.get_users()
+    await manager.broadcast(data={"online": onlinUsers})
+    sender_id = incoming_user["id"]
+    sender_name = incoming_user["name"]
     try:
         while True:
             data = await websocket.receive_json()
@@ -249,46 +257,42 @@ async def websocket_endpoint(
             if "available" in data:
                 status = data["available"]
                 manager.update_availability(sender_id, status)
-                users = manager.get_users()
-                await manager.broadcast(data={"online": users})
+                onlinUsers = manager.get_users()
+                await manager.broadcast(data={"online": onlinUsers})
             if "accept" in data:
                 user_to_notify = manager.get_user(data["accept"])
-                user_id_to_notify = user_to_notify["id"]
-                ids = [sender_id, user_to_notify["id"]]
-
-                # refactor to bulk delete - may require sqlalchemy
-                for id in ids:
-                    player = session.get(User, id)
-                    if player and player.game_id:
-                        game = session.get(Game, player.game_id)
-                        session.delete(game)
-
-                notification_payload = {
-                    "accept_notification": {
-                        "id": sender_id,
-                        "name": sender_name,
+                db_sender = session.get(User, sender_id)
+                db_to_notify = session.get(User, user_to_notify["id"])
+                if db_sender and db_to_notify:
+                    users = [db_sender, db_to_notify]
+                    for user in users:
+                        prev_game = user.game
+                        if prev_game:
+                            session.delete(prev_game)
+                            session.commit()
+                            session.refresh(user)
+                    notification_payload = {
+                        "accept_notification": {
+                            "id": sender_id,
+                            "name": sender_name,
+                        }
                     }
-                }
-                await manager.send_by_id(
-                    data=notification_payload, id=user_id_to_notify
-                )
-                users = [user, user_to_notify]
-                shared_game = create_multiplayer_game(users=users)
-                user1 = session.get(User, user["id"])
-                user2 = session.get(User, user_id_to_notify["id"])
-                if user1 and user2:
-                    game = add_multiplayer(session, shared_game, [user1, user2])
+                    await manager.send_by_id(
+                        data=notification_payload, id=user_to_notify["id"]
+                    )
+
+                    shared_game = create_multiplayer_game(users)
+                    game = add_multiplayer(session, shared_game, users)
                     payload = {
                         "multiplayer_game": {
                             "id": game.id,
-                            "owners": game.owners,
                             "players": game.players,
                             "board": game.board,
                             "turn": game.turn,
                         }
                     }
-                await manager.send_by_id(data=payload, id=ids[0])
-                await manager.send_by_id(data=payload, id=ids[1])
+                    await manager.send_by_id(data=payload, id=sender_id)
+                    await manager.send_by_id(data=payload, id=user_to_notify["id"])
             if "move" in data:
                 player_id = data["move"]["player_id"]
                 game_id = data["move"]["game_id"]

@@ -112,6 +112,9 @@ function App() {
         updateBoard(game);
         setPlayer(game.players[user.id]);
         setTurn(game.turn);
+        if (game.winner) {
+          setGameOver(true);
+        }
       };
       await handleGetGame();
     }
