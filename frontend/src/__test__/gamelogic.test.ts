@@ -5,7 +5,7 @@ import {
   isVertical,
   isDiagonalNegative,
   isDiagonalPositive,
-} from "../gameLogic";
+} from "../game/gameLogic";
 
 export const board: Board = [
   [null, null, null, null, null, null, null],
