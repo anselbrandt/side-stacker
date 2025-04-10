@@ -12,6 +12,7 @@ import {
   User,
 } from "./types";
 import { Controls } from "./components/Controls";
+import { Difficulty } from "./components/Difficulty";
 import { OnlineUsers } from "./components/OnlineUsers";
 import { PlayingBoard } from "./components/PlayingBoard";
 import { Title } from "./components/Title";
@@ -36,6 +37,7 @@ function App() {
   const [notification, setNotification] = useState<string>();
   const [winner, setWinner] = useState<string | null>(null);
   const socketRef = useRef<WebSocket>(null);
+  const [difficultyLevel, setDifficultyLevel] = useState<string>("easy");
 
   const updateBoard = (game: Game) => {
     setGameId(game.id);
@@ -306,6 +308,11 @@ function App() {
     setNotification(undefined);
   }, [notification]);
 
+  const handleOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    setDifficultyLevel(value);
+  };
+
   return (
     <div className="min-h-screen bg-zinc-100 flex flex-col items-center justify-center">
       <Title />
@@ -347,6 +354,11 @@ function App() {
             selectedUser={selectedUser}
           />
         </div>
+        <Difficulty
+          level={difficultyLevel}
+          handleOnChange={handleOnChange}
+          remotePlayer={remotePlayer}
+        />
       </div>
     </div>
   );
