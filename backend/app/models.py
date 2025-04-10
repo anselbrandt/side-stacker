@@ -44,3 +44,7 @@ class Move(BaseModel):
     id: int
     player: str
     winner: str | None
+
+
+class GameState(BaseModel):
+    difficulty: str

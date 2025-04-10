@@ -35,7 +35,7 @@ from app.db import (
     update_game,
 )
 from app.game import create_game, create_multiplayer_game
-from app.models import User, UserDict, Game, Move
+from app.models import User, UserDict, Game, Move, GameState
 
 dist = Path("../dist")
 dist.mkdir(exist_ok=True)
@@ -118,6 +118,17 @@ async def create_move(
     if game:
         updated_game = update_game(session, game, move)
         return updated_game
+
+
+@app.post("/alphazero")
+async def alphazero(
+    gameState: GameState,
+    user: CurrentUser,
+    session: Session = Depends(get_session),
+):
+    if user is None:
+        raise HTTPException(status_code=404, detail="Item not found")
+    return gameState
 
 
 class Reset(BaseModel):

@@ -222,10 +222,13 @@ function App() {
         !gameBoard
       )
         return;
-      setTimeout(() => {
-        const move = gameEngine(gameBoard);
-        handleMove(move);
-      }, 1000);
+      setTimeout(
+        async () => {
+          const move = await gameEngine(gameBoard, difficultyLevel);
+          handleMove(move);
+        },
+        difficultyLevel == "easy" ? 1000 : 0
+      );
     };
     autoMove();
   }, [
