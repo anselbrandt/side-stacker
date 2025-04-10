@@ -16,7 +16,8 @@ export const gameEngine = async (
     const move = gameBoard![i][j];
     return move;
   } else {
-    const payload = { difficulty: difficultyLevel };
+    const payload = { difficulty: difficultyLevel, board: board };
+    console.log(payload);
     const response = await postRequest("/alphazero", payload);
     console.log(response);
     const selectedCoordinates =
