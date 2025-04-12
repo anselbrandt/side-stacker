@@ -1,8 +1,8 @@
 from contextlib import asynccontextmanager
-import json
 from pathlib import Path
 from typing import Annotated
 
+from alphazero import bot_move
 
 from fastapi import (
     Depends,
@@ -120,6 +120,18 @@ async def create_move(
         return updated_game
 
 
+@app.post("/mcts")
+async def mcts(
+    gameState: GameState,
+    user: CurrentUser,
+    session: Session = Depends(get_session),
+):
+    if user is None:
+        raise HTTPException(status_code=404, detail="Item not found")
+    action = bot_move(gameState.board, gameState.player_symbol)
+    return action
+
+
 @app.post("/alphazero")
 async def alphazero(
     gameState: GameState,
@@ -128,7 +140,9 @@ async def alphazero(
 ):
     if user is None:
         raise HTTPException(status_code=404, detail="Item not found")
-    return gameState
+    print(gameState)
+    action = bot_move(gameState.board, gameState.player_symbol)
+    return action
 
 
 class Reset(BaseModel):

@@ -224,7 +224,7 @@ function App() {
         return;
       setTimeout(
         async () => {
-          const move = await gameEngine(gameBoard, difficultyLevel);
+          const move = await gameEngine(gameBoard, player, difficultyLevel);
           handleMove(move);
         },
         difficultyLevel == "easy" ? 1000 : 0

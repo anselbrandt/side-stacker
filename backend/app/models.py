@@ -47,5 +47,5 @@ class Move(BaseModel):
 
 
 class GameState(BaseModel):
-    difficulty: str
     board: list[list[str | None]]
+    player_symbol: str
