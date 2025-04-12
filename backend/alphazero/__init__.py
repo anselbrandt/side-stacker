@@ -1,3 +1,3 @@
-from .bot import bot_move
+from .alphazero_bot import alphazero_bot
 
-__all__ = ["bot_move"]
+__all__ = ["alphazero_bot"]

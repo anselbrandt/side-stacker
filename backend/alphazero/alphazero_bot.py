@@ -38,7 +38,7 @@ def action_to_row_col(action: int, size=7):
     return row, col
 
 
-def bot_move(board, player_symbol):
+def alphazero_bot(board, player_symbol):
     state = convert_board(board, player_symbol)
     neutral_state = sideStacker.change_perspective(state, -1)
     mcts_probs = mcts.search(neutral_state)

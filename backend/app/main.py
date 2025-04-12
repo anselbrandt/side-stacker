@@ -2,7 +2,8 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Annotated
 
-from alphazero import bot_move
+from alphazero import alphazero_bot
+from mcts import mcts_bot
 
 from fastapi import (
     Depends,
@@ -128,7 +129,7 @@ async def mcts(
 ):
     if user is None:
         raise HTTPException(status_code=404, detail="Item not found")
-    action = bot_move(gameState.board, gameState.player_symbol)
+    action = mcts_bot(gameState.board, gameState.player_symbol)
     return action
 
 
@@ -141,7 +142,7 @@ async def alphazero(
     if user is None:
         raise HTTPException(status_code=404, detail="Item not found")
     print(gameState)
-    action = bot_move(gameState.board, gameState.player_symbol)
+    action = alphazero_bot(gameState.board, gameState.player_symbol)
     return action
 
 
