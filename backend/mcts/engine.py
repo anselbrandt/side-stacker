@@ -1,28 +1,13 @@
 import numpy as np
-import torch
-from pathlib import Path
 
-from .SideStacker import SideStacker
-from .ResNet import ResNet
-from .Node import MCTS
-
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+from sidestacker import SideStacker
+from .mcts import MCTS
 
 sideStacker = SideStacker()
 
-args = {
-    "C": 2,
-    "num_searches": 1000,
-    "dirichlet_epsilon": 0.0,
-    "dirichlet_alpha": 0.3,
-}
+args = {"C": 1.41, "num_searches": 1000}
 
-model = ResNet(sideStacker, 4, 64, device)
-model_path = Path("model.pt")
-model.load_state_dict(torch.load(model_path, map_location=device))
-model.eval()
-
-mcts = MCTS(sideStacker, args, model)
+mcts = MCTS(sideStacker, args)
 
 
 def convert_board(board, player_symbol):
@@ -38,7 +23,7 @@ def action_to_row_col(action: int, size=7):
     return row, col
 
 
-def alphazero_bot(board, player_symbol):
+def mcts_engine(board, player_symbol):
     state = convert_board(board, player_symbol)
     neutral_state = sideStacker.change_perspective(state, -1)
     mcts_probs = mcts.search(neutral_state)

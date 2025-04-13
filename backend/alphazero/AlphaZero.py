@@ -3,7 +3,7 @@ from random import shuffle
 import numpy as np
 import torch.nn.functional as F
 
-from .Node import MCTS
+from .mcts import MCTS
 
 
 class AlphaZero:

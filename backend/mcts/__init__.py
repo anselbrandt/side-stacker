@@ -1,3 +1,3 @@
-from .mcts_bot import mcts_bot
+from .engine import mcts_engine
 
-__all__ = ["mcts_bot"]
+__all__ = ["mcts_engine"]
