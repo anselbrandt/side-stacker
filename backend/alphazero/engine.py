@@ -18,7 +18,7 @@ args = {
 }
 
 model = ResNet(sideStacker, 4, 64, device)
-model_path = Path("model.pt")
+model_path = Path("model_27.pt")
 model.load_state_dict(torch.load(model_path, map_location=device))
 model.eval()
 
