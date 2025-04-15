@@ -57,4 +57,8 @@ docker build -t side-stacker .
 
 ```
 docker run --rm -p 8000:8000 side-stacker
+
+or
+
+docker run --privileged --rm --gpus all -p 8000:8000 side-stacker
 ```
