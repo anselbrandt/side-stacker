@@ -140,7 +140,6 @@ async def alphazero(
 ):
     if user is None:
         raise HTTPException(status_code=404, detail="Item not found")
-    print(gameState)
     action = alphazero_engine(gameState.board, gameState.player_symbol)
     return action
 

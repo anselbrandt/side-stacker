@@ -1,12 +1,9 @@
 FROM node:22.14.0-slim AS build
-ENV PNPM_HOME="/pnpm"
-ENV PATH="$PNPM_HOME:$PATH"
-RUN corepack enable pnpm
 COPY /frontend /app/frontend
 WORKDIR /app/frontend
 
-RUN pnpm install
-RUN pnpm run build
+RUN npm install
+RUN npm run build
 
 FROM python:3.12.9-slim
 
