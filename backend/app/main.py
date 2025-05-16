@@ -90,7 +90,7 @@ async def login(
             httponly=True,
             max_age=COOKIE_EXPIRY,
             secure=True,
-            samesite="strict",
+            samesite="none",
         )
         return response
 
