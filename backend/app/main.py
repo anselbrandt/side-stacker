@@ -45,7 +45,8 @@ origins = [
     "http://localhost:5173",
     "http://localhost:8000",
     "https://air.anselbrandt.net",
-    "https://anselbrandt.com"
+    "https://anselbrandt.com",
+    "https://www.anselbrandt.com"
 ]
 
 
