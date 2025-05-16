@@ -2,6 +2,7 @@ import "./App.css";
 import { enhancedBoard } from "./game/gameUtils";
 import { gameEngine } from "./game/gameEngine";
 import { getRequest, postRequest } from "./utils";
+import { WS_URL } from "./constants";
 import { getValidMoves, isValid, isWinningMove } from "./game/gameLogic";
 import {
   Cell,
@@ -132,9 +133,7 @@ function App() {
       if (!user) return;
 
       if (!socketRef.current) {
-        socketRef.current = new WebSocket(
-          `ws://localhost:8000/ws?token=${user?.token}`
-        );
+        socketRef.current = new WebSocket(`${WS_URL}/ws?token=${user?.token}`);
       }
 
       const socket = socketRef.current;
