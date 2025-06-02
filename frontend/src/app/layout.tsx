@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "anselbrandt.com",
-  description: "ansel brandt",
+  title: "Side-Stacker",
+  description: "Connect Four, but sideways.",
 };
 
 export default function RootLayout({
