@@ -20,6 +20,35 @@ This project was originally developed as part of a technical interview take-home
 
 Implementing the game mechanics and frontend logic was fairly straightforward, but not a lot of guidance was given regarding the AI bot.
 
+## AlphaZero
+
+[AlphaZero](https://en.wikipedia.org/wiki/AlphaZero) is a state of the art algorithm developed for playing chess, shogi and go. Luckily it also works for other turn based games, like Connect Four.
+
+Alphazero consists of two parts:
+
+1. A modified [Monte-Carlo Tree Search (MCTS)](https://en.wikipedia.org/wiki/Monte_Carlo_tree_search)
+2. A [Residual Neural Network (ResNet)](https://en.wikipedia.org/wiki/Residual_neural_network)
+
+This is fortuitous, since a standalone Monte-Carlo tree search can be used as the basis for the "medium" difficulty bot, and the full AlphaZero algorithm can be used for "hard" mode.
+
+Fortunately much has been written about the AlphaZero algorithm. Some good resources include:
+
+#### AlphaZero from Scratch
+
+1. [AlphaZero from scratch in PyTorch for the game of Chain Reaction — Part 1](https://medium.com/@bentou.pub/alphazero-from-scratch-in-pytorch-for-the-game-of-chain-reaction-part-1-8cffdc399233)
+2. [AlphaZero from scratch in PyTorch for the game of Chain Reaction — Part 2](https://medium.com/@bentou.pub/alphazero-from-scratch-in-pytorch-for-the-game-of-chain-reaction-part-2-b2e7edda14fb)
+3. [AlphaZero from scratch in PyTorch for the game of Chain Reaction — Part 3](https://medium.com/@bentou.pub/alphazero-from-scratch-in-pytorch-for-the-game-of-chain-reaction-part-3-c3fbf0d6f986)
+
+#### Lessons From Implementing AlphaZero
+
+1. [Lessons From Implementing AlphaZero](https://medium.com/oracledevs/lessons-from-implementing-alphazero-7e36e9054191)
+2. [Lessons from AlphaZero: Connect Four](https://medium.com/oracledevs/lessons-from-alphazero-connect-four-e4a0ae82af68)
+3. [Lessons from AlphaZero (part 3): Parameter Tweaking
+   ](https://medium.com/oracledevs/lessons-from-alphazero-part-3-parameter-tweaking-4dceb78ed1e5)
+4. [Lessons From AlphaZero (part 4): Improving the Training Target](https://medium.com/oracledevs/lessons-from-alphazero-part-4-improving-the-training-target-6efba2e71628)
+5. [Lessons From Alpha Zero (part 5): Performance Optimization](https://medium.com/oracledevs/lessons-from-alpha-zero-part-5-performance-optimization-664b38dc509e)
+6. [Lessons From Alpha Zero (part 6) — Hyperparameter Tuning](https://medium.com/oracledevs/lessons-from-alpha-zero-part-6-hyperparameter-tuning-b1cfcbe4ca9a)
+
 ### Run
 
 #### Backend
