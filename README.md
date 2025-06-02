@@ -10,7 +10,7 @@ This project was originally developed as part of a technical interview take-home
    - **Medium**: AI using basic machine learning fundamentals
    - **Hard**: AI powered by a fully trained machine learning model
 
-## Technicaly requirements
+## Technical requirements
 
 - **Frontend**: Built with React (or vanilla JS), using modern ES6+ syntax and supporting real-time updates without requiring page reloads.
 - **Backend**: Game state persisted to a relational database.
