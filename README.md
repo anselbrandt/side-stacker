@@ -49,6 +49,14 @@ Fortunately much has been written about the AlphaZero algorithm. Some good resou
 5. [Lessons From Alpha Zero (part 5): Performance Optimization](https://medium.com/oracledevs/lessons-from-alpha-zero-part-5-performance-optimization-664b38dc509e)
 6. [Lessons From Alpha Zero (part 6) — Hyperparameter Tuning](https://medium.com/oracledevs/lessons-from-alpha-zero-part-6-hyperparameter-tuning-b1cfcbe4ca9a)
 
+## Frontend
+
+Fairly straightforward Next.js application containing all game logic for standalone play in "Easy" mode. Most of the complexity is in managing state for the websocket connection.
+
+## Backend
+
+Lightweight [FastAPI](https://fastapi.tiangolo.com/) based server backed by SQLite for persisting game state. Engines for Monte-Carlo tree search and AlphaZero reside in the backend, primarily because the AlphaZero implementation was developed in Python notebooks `/alphazero/MCTS.ipyunb` and `/alphazero/AlphaZero_Training.ipynb`.
+
 ### Run
 
 #### Backend
