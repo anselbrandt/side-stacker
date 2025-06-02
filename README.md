@@ -55,7 +55,7 @@ Fairly straightforward Next.js application containing all game logic for standal
 
 ## Backend
 
-Lightweight [FastAPI](https://fastapi.tiangolo.com/) based server backed by SQLite for persisting game state. Engines for Monte-Carlo tree search and AlphaZero reside in the backend, primarily because the AlphaZero implementation was developed in Python notebooks `/alphazero/MCTS.ipyunb` and `/alphazero/AlphaZero_Training.ipynb`.
+Lightweight [FastAPI](https://fastapi.tiangolo.com/) based server backed by SQLite for persisting game state. Engines for Monte-Carlo tree search and AlphaZero reside in the backend, primarily because the AlphaZero implementation was developed in Python notebooks `/alphazero/MCTS.ipynb` and `/alphazero/AlphaZero_Training.ipynb`.
 
 ### Run
 
