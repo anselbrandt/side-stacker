@@ -1,16 +1,52 @@
-# Python-generated files
+# Bytecode and caches
 __pycache__/
-*.py[oc]
+*.py[co]
+*.pyo
+
+# Packaging
 build/
 dist/
+*.egg-info/
 wheels/
-*.egg-info
 
 # Virtual environments
-.venv
+.venv/
+.env/
+env/
+venv/
 
-.pytest_cache
-db.sqlite
+# Test & coverage output
+.pytest_cache/
+.coverage
+htmlcov/
+.cache/
 
-# AWS pem files
+# SQLite and other DBs
+*.sqlite
+*.db
+
+# Logs
+*.log
+
+# Secrets / keys
 *.pem
+*.key
+
+# IDE/editor settings
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS junk
+.DS_Store
+
+# Docker artifacts (optional, if auto-generated)
+docker-compose.override.yml
+
+# Node.js (if mixed frontend/backend)
+node_modules/
+npm-debug.log
+
+# Optional project-level ignore
+.env
