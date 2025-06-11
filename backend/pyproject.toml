@@ -39,19 +39,4 @@ dev = "uv run uvicorn app.main:app --reload"
 lint = "uv run ruff check"
 test = "uv run pytest -q"
 test_debug = "uv run pytest -s"
-
-# Rsync code and compose.yaml (and everything except these exclusions)
-rsync_code="rsync -az --delete \
-  --exclude='__pycache__' \
-  --exclude='.venv' \
-  --exclude='.git' \
-  -e 'ssh -i us-east-1-macbook-air.pem' \
-  ./ ubuntu@ec2-44-203-125-172.compute-1.amazonaws.com:/home/ubuntu/backend/"
-
-docker_prune_remote="ssh -i us-east-1-macbook-air.pem ubuntu@ec2-44-203-125-172.compute-1.amazonaws.com 'docker system prune -a --volumes -f'"
-docker_down_remote="ssh -i us-east-1-macbook-air.pem ubuntu@ec2-44-203-125-172.compute-1.amazonaws.com 'docker compose -f /home/ubuntu/backend/compose.yaml down || true'"
-docker_delete_image_remote="ssh -i us-east-1-macbook-air.pem ubuntu@ec2-44-203-125-172.compute-1.amazonaws.com 'docker rmi backend:latest || true'"
-docker_build_remote="ssh -i us-east-1-macbook-air.pem ubuntu@ec2-44-203-125-172.compute-1.amazonaws.com 'cd /home/ubuntu/backend && docker build -t backend:latest .'"
-docker_up_remote="ssh -i us-east-1-macbook-air.pem ubuntu@ec2-44-203-125-172.compute-1.amazonaws.com 'cd /home/ubuntu/backend && docker compose -f compose.yaml up -d'"
-
-docker_deploy="task rsync_code && task docker_prune_remote && task docker_down_remote && task docker_delete_image_remote && task docker_build_remote && task docker_up_remote"
+deploy = "./deploy.sh"
