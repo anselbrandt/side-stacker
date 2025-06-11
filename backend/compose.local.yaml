@@ -10,7 +10,8 @@
 
 services:
   server:
-    image: backend:latest
+    build:
+      context: .
     ports:
       - 8000:8000
 

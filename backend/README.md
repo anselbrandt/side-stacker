@@ -9,16 +9,10 @@
 uv run task docker_deploy
 ```
 
-#### On EC2
+### Local Docker
 
 ```
-docker compose up -d
-```
-
-### Docker
-
-```
-docker compose up -d --build
+docker compose -f compose.local.yaml up -d --build
 ```
 
 ### Install
