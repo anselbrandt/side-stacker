@@ -40,19 +40,11 @@ lint = "uv run ruff check"
 test = "uv run pytest -q"
 test_debug = "uv run pytest -s"
 
-docker_build = "docker build -t backend:latest ."
-docker_save = "docker save backend:latest -o backend.tar"
-
-docker_upload = "scp -i us-east-1-macbook-air.pem backend.tar ubuntu@ec2-44-203-125-172.compute-1.amazonaws.com:/home/ubuntu/"
-
+rsync_code = "rsync -az --delete --exclude '__pycache__' --exclude '.venv' --exclude '.git' -e 'ssh -i us-east-1-macbook-air.pem' ./ ubuntu@ec2-44-203-125-172.compute-1.amazonaws.com:/home/ubuntu/backend/"
 docker_prune_remote = "ssh -i us-east-1-macbook-air.pem ubuntu@ec2-44-203-125-172.compute-1.amazonaws.com 'docker system prune -a --volumes -f'"
-
-docker_load_remote = "ssh -i us-east-1-macbook-air.pem ubuntu@ec2-44-203-125-172.compute-1.amazonaws.com 'docker load -i backend.tar && rm -f backend.tar && docker images'"
-
-docker_down_remote = "ssh -i us-east-1-macbook-air.pem ubuntu@ec2-44-203-125-172.compute-1.amazonaws.com 'docker compose -f compose.deploy.yml down || true'"
-
+docker_down_remote = "ssh -i us-east-1-macbook-air.pem ubuntu@ec2-44-203-125-172.compute-1.amazonaws.com 'docker compose -f compose.yaml down || true'"
 docker_delete_image_remote = "ssh -i us-east-1-macbook-air.pem ubuntu@ec2-44-203-125-172.compute-1.amazonaws.com 'docker rmi backend:latest || true'"
+docker_build_remote = "ssh -i us-east-1-macbook-air.pem ubuntu@ec2-44-203-125-172.compute-1.amazonaws.com 'cd backend && docker build -t backend:latest .'"
+docker_up_remote = "ssh -i us-east-1-macbook-air.pem ubuntu@ec2-44-203-125-172.compute-1.amazonaws.com 'cd backend && docker compose -f compose.yaml up -d'"
 
-docker_up_remote = "ssh -i us-east-1-macbook-air.pem ubuntu@ec2-44-203-125-172.compute-1.amazonaws.com 'docker compose -f compose.deploy.yml up -d'"
-
-docker_deploy = "task docker_build && task docker_save && task docker_upload && task docker_prune_remote && task docker_load_remote && task docker_down_remote && task docker_delete_image_remote && task docker_up_remote"
+docker_deploy = "task rsync_code && task docker_prune_remote && task docker_down_remote && task docker_delete_image_remote && task docker_build_remote && task docker_up_remote"
