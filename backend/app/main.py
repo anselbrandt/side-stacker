@@ -41,6 +41,8 @@ origins = [
     "https://air.anselbrandt.net",
     "https://anselbrandt.com",
     "https://www.anselbrandt.com",
+    "https://app.anselbrandt.ca",
+    "https://www.app.anselbrandt.ca",
 ]
 
 
@@ -221,10 +223,7 @@ class ConnectionManager:
 manager = ConnectionManager()
 
 
-async def get_user_from_token(
-    websocket: WebSocket,
-    token: str = Query(None)
-):
+async def get_user_from_token(websocket: WebSocket, token: str = Query(None)):
     if not token:
         raise WebSocketException(code=status.WS_1008_POLICY_VIOLATION)
     user = decode_token(token)
