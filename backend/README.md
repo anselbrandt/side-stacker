@@ -1,5 +1,11 @@
 # FastAPI
 
+### Docker
+
+```
+docker compose up -d --build
+```
+
 ### Install
 
 ```
