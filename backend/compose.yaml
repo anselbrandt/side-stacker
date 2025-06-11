@@ -7,10 +7,19 @@
 # You can add other services your application may depend on here, such as a
 # database or a cache. For examples, see the Awesome Compose repository:
 # https://github.com/docker/awesome-compose
+
+# if building locally, uncomment this section
+# services:
+#   server:
+#     build:
+#       context: .
+#     ports:
+#       - 8000:8000
+
+# if image has already been build
 services:
   server:
-    build:
-      context: .
+    image: backend:latest
     ports:
       - 8000:8000
 

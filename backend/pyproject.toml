@@ -39,3 +39,10 @@ dev = "uv run uvicorn app.main:app --reload"
 lint = "uv run ruff check"
 test = "uv run pytest -q"
 test_debug = "uv run pytest -s"
+
+docker_build = "docker build -t backend:latest ."
+docker_save = "docker save backend:latest -o backend.tar"
+docker_upload = "scp -i us-east-1-macbook-air.pem backend.tar ubuntu@ec2-44-203-125-172.compute-1.amazonaws.com:/home/ubuntu/"
+docker_load_remote = "ssh -i us-east-1-macbook-air.pem ubuntu@ec2-44-203-125-172.compute-1.amazonaws.com 'docker load -i backend.tar && docker images'"
+
+docker_deploy = "task docker_build && task docker_save && task docker_upload && task docker_load_remote"

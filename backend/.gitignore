@@ -11,3 +11,6 @@ wheels/
 
 .pytest_cache
 db.sqlite
+
+# AWS pem files
+*.pem
